@@ -22,8 +22,8 @@ export default function SettingsSidebar({
   onSectionChange,
 }: SettingsSidebarProps) {
   return (
-    <aside className='w-full md:w-64 p-6 md:p-8'>
-      <h1 className='text-3xl md:text-4xl font-bold mb-8 md:mb-12'>Settings</h1>
+    <aside className='w-full md:w-80 p-6 md:p-8'>
+      <h1 className='text-3xl md:text-4xl text-[#333] font-bold mb-8 md:mb-12'>Settings</h1>
       <nav className='space-y-2 md:space-y-1'>
         {menuItems.map((item) => (
           <button
@@ -31,7 +31,7 @@ export default function SettingsSidebar({
             onClick={() => onSectionChange(item.id as SettingSection)}
             className={`w-full flex items-center justify-between py-3 px-4 rounded-lg transition-colors text-left ${
               activeSection === item.id
-                ? "bg-secondary text-foreground"
+                ? "bg-gray-200 text-foreground"
                 : "text-foreground hover:bg-muted"
             }`}
           >

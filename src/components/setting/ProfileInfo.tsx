@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function ProfileInfo() {
   const [name, setName] = useState("Mr. John");
   const [email, setEmail] = useState("john@example.com");
-  const [avatar, setAvatar] = useState("/profile-avatar.png");
+  const [avatar, setAvatar] = useState("/man.png");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +32,7 @@ export default function ProfileInfo() {
 
   return (
     <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl font-bold mb-8'>
+      <h2 className='text-2xl md:text-3xl text-[#333] font-bold mb-8'>
         Profile Information
       </h2>
 
@@ -41,7 +41,7 @@ export default function ProfileInfo() {
         <div className='flex flex-col items-center'>
           <div className='relative w-32 h-32 md:w-40 md:h-40 mb-4'>
             <Image
-              src={avatar || "/placeholder.svg"}
+              src={avatar || "/man.png"}
               alt='Profile picture'
               width={160}
               height={160}
@@ -72,7 +72,10 @@ export default function ProfileInfo() {
         {/* Form Section */}
         <div className='flex-1 space-y-6'>
           <div>
-            <label htmlFor='name' className='block text-sm font-semibold mb-2'>
+            <label
+              htmlFor='name'
+              className='block text-xl font-semibold text-[#333] mb-2'
+            >
               Name
             </label>
             <input
@@ -80,12 +83,15 @@ export default function ProfileInfo() {
               type='text'
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className='w-full px-4 py-3 bg-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all'
+              className='w-full bg-[#E6EAF0] text-black text-lg px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all'
             />
           </div>
 
           <div>
-            <label htmlFor='email' className='block text-sm font-semibold mb-2'>
+            <label
+              htmlFor='email'
+              className='block text-xl font-semibold text-[#333] mb-2'
+            >
               Email
             </label>
             <input
@@ -93,13 +99,13 @@ export default function ProfileInfo() {
               type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className='w-full px-4 py-3 bg-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all'
+              className='w-full bg-[#E6EAF0] text-black text-lg px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all'
             />
           </div>
 
           <Button
             onClick={handleSaveChanges}
-            className='w-full md:w-auto bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors'
+            className='w-full md:w-auto button'
           >
             Save Changes
           </Button>
