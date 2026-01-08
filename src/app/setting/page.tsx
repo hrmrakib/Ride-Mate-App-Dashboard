@@ -1,40 +1,44 @@
 "use client";
 
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { useState } from "react";
+import SettingsSidebar from "@/components/setting/SettingsSidebar";
+import AboutUs from "@/components/setting/AboutUs";
+import ChangePassword from "@/components/setting/ChangePassword";
+import PrivacyPolicy from "@/components/setting/PrivacyPolicy";
+import ProfileInfo from "@/components/setting/ProfileInfo";
+import TermsAndService from "@/components/setting/TermsAndService";
+
+type SettingSection = "profile" | "password" | "terms" | "privacy" | "about";
 
 export default function SettingsPage() {
-  const settingsLinks = [
-    { title: "Personal Information", href: "/setting/personal-information" },
-    { title: "Change Password", href: "/setting/change-password" },
-    { title: "Terms & Condition", href: "/setting/terms-condition" },
-    { title: "Privacy Policy", href: "/setting/privacy-policy" },
-    { title: "Trust & Safety", href: "/setting/trust-safety" },
-  ];
+  const [activeSection, setActiveSection] = useState<SettingSection>("profile");
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case "profile":
+        return <ProfileInfo />;
+      case "password":
+        return <ChangePassword />;
+      case "terms":
+        return <TermsAndService />;
+      case "privacy":
+        return <PrivacyPolicy />;
+      case "about":
+        return <AboutUs />;
+      default:
+        return <ProfileInfo />;
+    }
+  };
 
   return (
-    <div className='flex min-h-screen bg-gray-50 p-6'>
-      <div className='flex-1 w-full'>
-        <main className='w-full p-4 md:p-6'>
-          <div className='max-w-3xl mx-auto'>
-            <h1 className='text-2xl font-semibold text-gray-800 mb-4'>
-              Settings
-            </h1>
-            <div className='border-b border-gray-200 mb-6'></div>
-
-            <div className='space-y-4'>
-              {settingsLinks.map((link, index) => (
-                <Link
-                  key={index}
-                  href={link.href}
-                  className='flex items-center justify-between p-4 border border-[#760C2A] rounded-md hover:bg-gray-50 transition-colors'
-                >
-                  <span className='text-primary text-lg'>{link.title}</span>
-                  <ChevronRight className='h-5 w-5 text-gray-400' />
-                </Link>
-              ))}
-            </div>
-          </div>
+    <div className='min-h-screen bg-background'>
+      <div className='flex flex-col md:flex-row'>
+        <SettingsSidebar
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+        />
+        <main className='flex-1 md:border-l border-border'>
+          {renderContent()}
         </main>
       </div>
     </div>
