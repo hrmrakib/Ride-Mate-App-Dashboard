@@ -10,8 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -53,8 +55,20 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Sign in data:", formData);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (res?.ok) {
+        const data = await res.json();
+        localStorage.setItem("access_token", data.token);
+        router.push("/");
+        console.log("Sign in response:", data);
+      }
     } catch (error) {
       console.error("Sign in error:", error);
     } finally {
@@ -63,9 +77,9 @@ export default function SignInPage() {
   };
 
   return (
-    <div className='min-h-screen bg-orange-50 flex items-center justify-center p-4'>
+    <div className='min-h-screen bg-orange-50 flex items-center justify-center'>
       <Card className='w-full max-w-xl bg-white shadow-lg border-0'>
-        <CardContent className='pb-8'>
+        <CardContent className='pb-6'>
           {/* Logo */}
           <div className='flex items-center justify-center text-center'>
             <Image src='/logo.png' alt='Logo' width={200} height={200} />
@@ -144,7 +158,7 @@ export default function SignInPage() {
             <div className='text-right'>
               <Link
                 href='/auth/forgot-password'
-                className='text-orange-500 text-sm hover:text-orange-600 transition-colors'
+                className='text-[#333333] text-sm hover:text-[#012B5B] transition-colors'
               >
                 Forgot password?
               </Link>
@@ -154,7 +168,7 @@ export default function SignInPage() {
             <Button
               type='submit'
               disabled={isLoading}
-              className='w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg transition-colors'
+              className='w-full button'
             >
               {isLoading ? "Signing In..." : "Sign in"}
             </Button>
@@ -175,7 +189,7 @@ export default function SignInPage() {
                 Don&apos;t have an account?{" "}
                 <Link
                   href='/auth/signup'
-                  className='text-orange-500 hover:text-orange-600 font-medium transition-colors'
+                  className='text-[#333333] hover:text-[#012B5B] font-medium transition-colors'
                 >
                   Sign up
                 </Link>

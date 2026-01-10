@@ -33,7 +33,7 @@ const StatCard = ({
 
 export default function Dashboard() {
   return (
-    <div className='bg-transparent'>
+    <div className='bg-transparent p-6'>
       {/* Main Content */}
       <div className='py-8'>
         {/* Stats Cards */}

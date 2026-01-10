@@ -100,7 +100,7 @@
          bg-[#012B5B] px-8 text-xl font-bold text-white 
          transition-all duration-200 cursor-pointer hover:bg-[#033f83]
          hover:shadow-lg hover:shadow-[#3B82F6]/50 active:bg-[#023979]
-        active:shadow-lg active:shadow-[#3B82F6]/50;
+        active:shadow-lg active:shadow-[#3B82F6]/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none;
 }
 
 /* 3. Optional global styles */

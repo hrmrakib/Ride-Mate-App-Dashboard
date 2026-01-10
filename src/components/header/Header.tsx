@@ -16,7 +16,7 @@ const Header = () => {
 
   if (
     pathname === "/signup" ||
-    pathname === "/signin" ||
+    pathname === "/login" ||
     pathname === "/forget-password" ||
     pathname === "/verify-password" ||
     pathname === "/verify-otp" ||
@@ -25,7 +25,7 @@ const Header = () => {
     return null;
   }
   return (
-    <div className='bg-white border-b border-gray-200 rounded-md'>
+    <div className='bg-white border-b border-gray-200 rounded-md m-6'>
       <div className='max-w-8xl mx-auto px-6'>
         <div className='flex items-center justify-between py-6'>
           <div>

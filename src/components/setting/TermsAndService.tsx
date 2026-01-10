@@ -3,7 +3,7 @@
 export default function TermsAndService() {
   return (
     <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl font-bold mb-6'>Terms and Service</h2>
+      <h2 className='text-2xl md:text-3xl font-bold text-[#333] mb-6'>Terms and Service</h2>
 
       <div className='space-y-6 max-w-3xl text-foreground/80'>
         <section>

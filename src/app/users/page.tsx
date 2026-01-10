@@ -111,7 +111,7 @@ export default function UserListPage() {
   ];
 
   return (
-    <div className='min-h-screen bg-transparent'>
+    <div className='min-h-screen bg-transparent p-6'>
       <div className='w-full'>
         {/* Header */}
         <div className='mb-6 bg-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mt-2.5 px-4 py-5 rounded-xl'>

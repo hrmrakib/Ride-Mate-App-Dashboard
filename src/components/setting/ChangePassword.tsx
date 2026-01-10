@@ -38,14 +38,16 @@ export default function ChangePassword() {
 
   return (
     <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl font-bold mb-8'>Change Password</h2>
+      <h2 className='text-2xl md:text-3xl text-[#333] font-bold mb-8'>
+        Change Password
+      </h2>
 
       <div className='max-w-md space-y-6'>
         {/* Current Password */}
         <div>
           <label
             htmlFor='current-password'
-            className='block text-sm font-semibold mb-2'
+            className='block text-lg text-[#333] font-semibold mb-2'
           >
             Current Password
           </label>
@@ -55,7 +57,7 @@ export default function ChangePassword() {
               type={showCurrentPassword ? "text" : "password"}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className='w-full px-4 py-3 bg-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
+              className='w-full px-4 py-3 bg-[#E6EAF0] text-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
             />
             <button
               type='button'
@@ -76,7 +78,7 @@ export default function ChangePassword() {
         <div>
           <label
             htmlFor='new-password'
-            className='block text-sm font-semibold mb-2'
+            className='block text-lg text-[#333] font-semibold mb-2'
           >
             New Password
           </label>
@@ -86,7 +88,7 @@ export default function ChangePassword() {
               type={showNewPassword ? "text" : "password"}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className='w-full px-4 py-3 bg-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
+              className='w-full px-4 py-3 bg-[#E6EAF0] text-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
             />
             <button
               type='button'
@@ -107,7 +109,7 @@ export default function ChangePassword() {
         <div>
           <label
             htmlFor='confirm-password'
-            className='block text-sm font-semibold mb-2'
+            className='block text-lg text-[#333] font-semibold mb-2'
           >
             Confirm Password
           </label>
@@ -117,7 +119,7 @@ export default function ChangePassword() {
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className='w-full px-4 py-3 bg-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
+              className='w-full px-4 py-3 bg-[#E6EAF0] text-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
             />
             <button
               type='button'
@@ -134,10 +136,7 @@ export default function ChangePassword() {
           </div>
         </div>
 
-        <Button
-          onClick={handleChangePassword}
-          className='w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-semibold transition-colors'
-        >
+        <Button onClick={handleChangePassword} className='w-full button'>
           Update Password
         </Button>
       </div>

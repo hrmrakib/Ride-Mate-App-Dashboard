@@ -3,13 +3,15 @@
 export default function PrivacyPolicy() {
   return (
     <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl font-bold mb-6'>
+      <h2 className='text-2xl md:text-3xl text-[#333] font-bold mb-6'>
         Privacy and Policy
       </h2>
 
       <div className='space-y-6 max-w-3xl text-foreground/80'>
         <section>
-          <h3 className='text-lg font-semibold mb-3'>Privacy Policy</h3>
+          <h3 className='text-lg font-semibold text-[#333] mb-3'>
+            Privacy Policy
+          </h3>
           <p>
             Your privacy is important to us. This Privacy Policy explains how we
             collect, use, disclose, and otherwise handle your information.

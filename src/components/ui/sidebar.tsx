@@ -272,7 +272,7 @@ function SidebarTrigger({
 
   if (
     pathname === "/signup" ||
-    pathname === "/signin" ||
+    pathname === "/login" ||
     pathname === "/forget-password" ||
     pathname === "/verify-password" ||
     pathname === "/verify-otp" ||
