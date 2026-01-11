@@ -1,43 +1,42 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import baseAPI from "@/redux/api/api";
 
 const userAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
-    getEventList: builder.query({
-      query: ({ page, limit, search = "" }) => ({
-        url: `/events?page=${page}&limit=${limit}&search=${search}`,
+    getUserByRole: builder.query<
+      any,
+      { role: string; search?: string; page?: number; limit?: number }
+    >({
+      query: ({ role, search, page, limit }) => ({
+        url: `/admin/users?role=${role}&page=${page}&limit=${limit}&search=${search}`,
         method: "GET",
       }),
     }),
 
-    getUpcomingEvents: builder.query({
-      query: ({ page, limit, search = "" }) => ({
-        url: `/events/upcoming-events?page=${page}&limit=${limit}&search=${search}`,
-        method: "GET",
+    deleteUser: builder.mutation<any, { userId: string }>({
+      query: ({ userId }) => ({
+        url: `/admin/users`,
+        method: "DELETE",
+        body: { user_id: userId },
       }),
     }),
 
-    getASingleEvent: builder.query({
-      query: (eventId) => ({
-        url: `/events/${eventId}`,
+    pendingUsers: builder.query<
+      any,
+      { role?: string; page?: number; limit?: number; search?: string }
+    >({
+      query: ({ role, page, limit, search }) => ({
+        url: `/admin/users/pending-users?role=${role}&page=${page}&limit=${limit}&search=${search}`,
         method: "GET",
-      }),
-    }),
-
-    ticketPurchase: builder.mutation({
-      query: (data) => ({
-        url: `/tickets/purchase-ticket`,
-        method: "POST",
-        body: data,
       }),
     }),
   }),
 });
 
 export const {
-  useGetEventListQuery,
-  useGetUpcomingEventsQuery,
-  useGetASingleEventQuery,
-  useTicketPurchaseMutation,
+  useGetUserByRoleQuery,
+  useDeleteUserMutation,
+  usePendingUsersQuery,
 } = userAPI;
 
 export default userAPI;

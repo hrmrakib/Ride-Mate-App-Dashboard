@@ -1,75 +1,122 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
-import { Search, Info, Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Search,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Loader2,
+  Eye,
+  Trash,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-
-// Mock data matching the design
-const mockUsers = Array.from({ length: 60 }, (_, i) => ({
-  id: i + 1,
-  slNo: "#BI00001",
-  name: "Hazel Janis",
-  email: "janis202@gmail.com",
-  contactNumber: "+626-445-4928",
-  status: "Active",
-  role: "Driver",
-  joined: "4-25-2025",
-  profileImage: "/user.jpg",
-  country: "Indonesia",
-  disableAccess: false,
-  deleteAccount: false,
-}));
+import {
+  useDeleteUserMutation,
+  useGetUserByRoleQuery,
+  usePendingUsersQuery,
+} from "@/redux/features/user/userAPI";
+import { IUSER } from "@/types";
+import { toast } from "sonner";
+import {
+  MobileCardSkeleton,
+  TableSkeleton,
+} from "@/components/user/TableSkleton";
+import Link from "next/link";
 
 export default function UserListPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [debounceSearch, setDebounceSearch] = useState("");
   const [actionModalOpen, setActionModalOpen] = useState(false);
-  const [answersModalOpen, setAnswersModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<
-    (typeof mockUsers)[0] | null
-  >(null);
-  const [selectRole, setSelectRole] = useState<string>("all-users");
-  const itemsPerPage = 10;
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<IUSER | null>(null);
+  const [selectRole, setSelectRole] = useState<string>("user");
+  const [selectSubRole, setSelectSubRole] = useState<string>("USER");
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 5;
 
-  // Filter users based on search term
-  const filteredUsers = mockUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.contactNumber.includes(searchTerm)
+  const { data, isFetching, refetch } = useGetUserByRoleQuery(
+    {
+      role: selectRole.toUpperCase(),
+      page: currentPage,
+      limit,
+      search: debounceSearch,
+    },
+    { skip: selectRole === "pending-request" }
+  );
+  const { data: pendingUsersData } = usePendingUsersQuery(
+    {
+      role: selectSubRole,
+      page: currentPage,
+      limit,
+      search: debounceSearch,
+    },
+    { skip: selectRole !== "pending-request" }
   );
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+  const [deleteUserMutation, { isLoading: isDeleting }] =
+    useDeleteUserMutation();
 
-  const handleActionClick = (user: (typeof mockUsers)[0]) => {
+  const pendingUsers = pendingUsersData?.data;
+  const users = data?.data;
+
+  const pagination = data?.meta?.pagination;
+
+  const totalPages = pagination?.totalPages ?? 1;
+  const totalResults = pagination?.total ?? 0;
+
+  // current lists
+  const currentList = selectRole === "pending-request" ? pendingUsers : users;
+
+  // debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebounceSearch(searchInput.trim());
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setSearchInput("");
+  }, [selectRole]);
+
+  const handleActionClick = (user: IUSER) => {
     setSelectedUser(user);
     setActionModalOpen(true);
   };
 
-  const handleViewAnswerClick = () => {
-    setAnswersModalOpen(true);
-  };
+  const handleUserDelete = async () => {
+    const userId = selectedUser?.id ?? "";
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      const res = await deleteUserMutation({ userId }).unwrap();
 
-  const handleToggleChange = (
-    field: "disableAccess" | "deleteAccount",
-    value: boolean
-  ) => {
-    if (selectedUser) {
-      setSelectedUser({ ...selectedUser, [field]: value });
+      if (res?.success) {
+        toast.success("User deleted successfully!");
+        refetch();
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
+      setDeleteModalOpen(false);
+      setActionModalOpen(false);
     }
   };
 
@@ -104,10 +151,10 @@ export default function UserListPage() {
   };
 
   const roles = [
-    { value: "users", label: "Users" },
+    { value: "user", label: "Users" },
     { value: "driver", label: "Driver" },
     { value: "pending-request", label: "Pending Request" },
-    { value: "all-users", label: "All Users" },
+    // { value: "all-users", label: "All Users" },
   ];
 
   return (
@@ -125,7 +172,7 @@ export default function UserListPage() {
                     onClick={() => setSelectRole(role.value)}
                     className={`
             relative cursor-pointer
-            text-xl lg:text-2xl
+            text-base lg:text-2xl
             transition-all duration-300 ease-out
             ${isActive ? "text-black" : "text-gray-500"}
             hover:text-black
@@ -147,6 +194,31 @@ export default function UserListPage() {
                 </div>
               );
             })}
+
+            {selectRole === "pending-request" ? (
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() => setSelectSubRole("USER")}
+                  className={`text-black border ${
+                    selectSubRole === "USER"
+                      ? "bg-green-700 text-white border-green-700"
+                      : "border-gray-700"
+                  } px-2 py-1 rounded-full cursor-pointer`}
+                >
+                  User
+                </button>
+                <button
+                  onClick={() => setSelectSubRole("DRIVER")}
+                  className={`text-black border ${
+                    selectSubRole === "DRIVER"
+                      ? "bg-green-700 text-white border-green-700"
+                      : "border-gray-700"
+                  } px-2 py-1 rounded-full cursor-pointer`}
+                >
+                  Driver
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className='relative w-full sm:w-80 bg-[#524a4a] rounded-xl'>
@@ -154,11 +226,8 @@ export default function UserListPage() {
             <Input
               type='text'
               placeholder='Search'
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className='pl-10 text-black'
             />
           </div>
@@ -175,13 +244,13 @@ export default function UserListPage() {
                     Profile
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Sl no.
-                  </th>
-                  <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
                     Name
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
                     Email
+                  </th>
+                  <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
+                    Is Verified
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
                     Contact Number
@@ -201,118 +270,171 @@ export default function UserListPage() {
                 </tr>
               </thead>
               <tbody className='divide-y divide-gray-200'>
-                {currentUsers.map((user) => (
-                  <tr key={user.id} className='hover:bg-gray-50'>
-                    <td className='px-6 py-4'>
-                      <Avatar className='h-10 w-10'>
-                        <AvatarImage
-                          src={user.profileImage || "/user.jpg"}
-                          alt={user.name}
-                          width={40}
-                          height={40}
-                        />
-                        <AvatarFallback>
-                          {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.slNo}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.name}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.email}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.status}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.role}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.joined}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.contactNumber}
-                    </td>
+                {isFetching ? (
+                  <TableSkeleton rows={10} />
+                ) : currentList?.length ? (
+                  currentList?.map((user: IUSER) => (
+                    <tr key={user.id} className='hover:bg-gray-50'>
+                      <td className='px-6 py-4'>
+                        <Avatar className='h-10 w-10'>
+                          <AvatarImage
+                            src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/${user.avatar}`}
+                            alt={user.name}
+                            width={40}
+                            height={40}
+                          />
+                          <AvatarFallback>
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.name}
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.email}
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.is_verified ? "✅ Verified" : "❌ Not Verified"}
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.phone || "N/A"}
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.is_active ? "🟢 Active" : "🔴 Inactive"}
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.role}
+                      </td>
+                      <td className='px-6 py-4 text-base text-table-color font-medium'>
+                        {user.created_at.split("T")[0]}
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center justify-center gap-2'>
+                          <Link
+                            href={`/users/${user.id}`}
+                            className='inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100'
+                          >
+                            <Eye className='h-4 w-4 text-gray-400' />
+                          </Link>
 
-                    <td className='px-6 py-4'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='h-8 w-8 p-0'
-                        onClick={() => handleActionClick(user)}
-                      >
-                        <Info className='h-4 w-4 text-gray-400' />
-                      </Button>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='h-8 w-8 p-0'
+                            onClick={() => handleActionClick(user)}
+                          >
+                            <Trash className='h-4 w-4 text-gray-400' />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9} className='text-center py-4'>
+                      No users found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
 
           {/* Mobile Cards */}
+
+          {/* Mobile Cards */}
           <div className='md:hidden'>
-            <div className='bg-[#012B5B] px-4 py-3'>
+            <div className='bg-[#012B5B] px-4 py-3 rounded-t-lg'>
               <h2 className='text-sm font-medium text-white'>User List</h2>
             </div>
+
             <div className='divide-y divide-gray-200'>
-              {currentUsers.map((user) => (
-                <div key={user.id} className='p-4'>
-                  <div className='flex items-start gap-3'>
-                    <Avatar className='h-12 w-12'>
-                      <AvatarImage
-                        src={user.profileImage || "/placeholder.svg"}
-                        alt={user.name}
-                      />
-                      <AvatarFallback>
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className='flex-1 space-y-2'>
-                      <div className='flex items-center justify-between'>
-                        <h3 className='font-medium text-gray-900'>
-                          {user.name}
-                        </h3>
-                        <span className='text-xs text-gray-500'>
-                          {user.slNo}
-                        </span>
-                      </div>
-                      <div className='space-y-1 text-sm text-gray-600'>
-                        <p>{user.email}</p>
-                        <p>{user.contactNumber}</p>
-                      </div>
-                      <div className='flex items-center justify-between pt-2'>
-                        <Button
-                          variant='link'
-                          className='p-0 text-blue-600 hover:text-blue-800'
-                          onClick={handleViewAnswerClick}
-                        >
-                          <Eye className='mr-1 h-4 w-4' />
-                          View Answer
-                        </Button>
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          className='h-8 w-8 p-0'
-                          onClick={() => handleActionClick(user)}
-                        >
-                          <Info className='h-4 w-4 text-gray-400' />
-                        </Button>
+              {isFetching ? (
+                <MobileCardSkeleton />
+              ) : currentList?.length ? (
+                currentList?.map((user: IUSER) => (
+                  <div key={user.id} className='p-4'>
+                    <div className='flex gap-4'>
+                      {/* Avatar */}
+                      <Avatar className='h-12 w-12 shrink-0'>
+                        <AvatarImage
+                          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/${user.avatar}`}
+                          alt={user.name}
+                        />
+                        <AvatarFallback>
+                          {user.name
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Info */}
+                      <div className='flex-1'>
+                        <div className='flex items-center justify-between'>
+                          <h3 className='text-base font-semibold text-gray-900'>
+                            {user.name}
+                          </h3>
+
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8'
+                            onClick={() => handleActionClick(user)}
+                          >
+                            <Info className='h-4 w-4 text-gray-500' />
+                          </Button>
+                        </div>
+
+                        <p className='text-sm text-gray-600 break-all'>
+                          {user.email}
+                        </p>
+
+                        <p className='text-sm text-gray-600'>
+                          {user.phone || "N/A"}
+                        </p>
+
+                        {/* Meta */}
+                        <div className='mt-2 flex flex-wrap items-center gap-2'>
+                          <span className='rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700'>
+                            {user.role}
+                          </span>
+
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                              user.is_active
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {user.is_active ? "Active" : "Inactive"}
+                          </span>
+
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                              user.is_verified
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {user.is_verified ? "Verified" : "Unverified"}
+                          </span>
+                        </div>
+
+                        <p className='mt-2 text-xs text-gray-400'>
+                          Joined: {user.created_at?.split("T")[0]}
+                        </p>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className='p-6 text-center text-gray-500'>No users found</p>
+              )}
             </div>
           </div>
         </div>
@@ -341,7 +463,7 @@ export default function UserListPage() {
                   className={`h-8 w-8 p-0 ${
                     currentPage === page
                       ? "bg-[#012B5B] text-white hover:bg-[#023b7c]"
-                      : "hover:bg-gray-100"
+                      : "hover: bg-gray-100"
                   }`}
                 >
                   {page}
@@ -353,9 +475,7 @@ export default function UserListPage() {
           <Button
             variant='ghost'
             size='sm'
-            onClick={() =>
-              setCurrentPage(Math.min(totalPages, currentPage + 1))
-            }
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
             className='h-8 w-8 p-0'
           >
@@ -365,8 +485,7 @@ export default function UserListPage() {
 
         {/* Results info */}
         <div className='mt-4 text-center text-sm text-gray-600'>
-          Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)}{" "}
-          of {filteredUsers.length} results
+          Page {currentPage} of {totalPages} • Total {totalResults} users
         </div>
 
         <Dialog open={actionModalOpen} onOpenChange={setActionModalOpen}>
@@ -392,7 +511,7 @@ export default function UserListPage() {
                       User Id:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.slNo}
+                      {selectedUser.id}
                     </p>
                   </div>
                   <div className='flex items-center justify-between border-b pb-5'>
@@ -416,35 +535,28 @@ export default function UserListPage() {
                       Contact Number:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.contactNumber}
+                      {selectedUser.phone || "N/A"}
                     </p>
                   </div>
                   <div className='flex items-center justify-between border-b pb-5'>
                     <Label className='text-[#333338] text-xl font-medium'>
-                      Country:
+                      Is stripe connected:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.country}
+                      {selectedUser.is_stripe_connected ? "✅ Yes" : "❌ No"}
+                    </p>
+                  </div>
+                  <div className='flex items-center justify-between border-b pb-5'>
+                    <Label className='text-[#333338] text-xl font-medium'>
+                      Vehicle Type:
+                    </Label>
+                    <p className='text-[#3e3e41] text-base font-medium'>
+                      {selectedUser.vehicle_type || "N/A"}
                     </p>
                   </div>
                 </div>
 
                 <div className='space-y-4 pt-4'>
-                  <div className='flex items-center justify-between border-b pb-5'>
-                    <Label
-                      htmlFor='disable-access'
-                      className='text-[#333338] text-xl font-medium'
-                    >
-                      Disable User Access
-                    </Label>
-                    <Switch
-                      id='disable-access'
-                      checked={selectedUser.disableAccess}
-                      onCheckedChange={(checked) =>
-                        handleToggleChange("disableAccess", checked)
-                      }
-                    />
-                  </div>
                   <div className='flex items-center justify-between'>
                     <Label
                       htmlFor='delete-account'
@@ -452,11 +564,42 @@ export default function UserListPage() {
                     >
                       Delete User Account
                     </Label>
-                    <Button className='bg-red-500'>Delete</Button>
+                    <Button
+                      onClick={() => setDeleteModalOpen(true)}
+                      className='bg-red-500'
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirm Modal */}
+        <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+          <DialogContent className='sm:max-w-[400px]'>
+            <DialogHeader>
+              <DialogTitle className='text-red-600'>
+                Delete Confirmation
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to <b>delete this item</b>? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant='outline'>Cancel</Button>
+              </DialogClose>
+
+              <Button variant='destructive' onClick={() => handleUserDelete()}>
+                Yes, Delete{" "}
+                {isDeleting ? <Loader2 className='animate-spin' /> : ""}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

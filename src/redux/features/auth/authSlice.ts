@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type AuthState = {
@@ -6,7 +7,7 @@ type AuthState = {
   token: any | null;
 };
 
-const initialState = {
+const initialState: AuthState = {
   userToggle: false,
   user: null,
   token: null,
