@@ -1,33 +1,69 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/features/setting/settingAPI";
 
 export default function ProfileInfo() {
-  const [name, setName] = useState("Mr. John");
-  const [email, setEmail] = useState("john@example.com");
-  const [avatar, setAvatar] = useState("/man.png");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [uploadAvatar, setUploadAvatar] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [updateProfileMutation] = useUpdateProfileMutation();
+  const { data: profile } = useGetProfileQuery({});
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile?.name);
+      setEmail(profile?.email);
+      setAvatar(profile?.avatar);
+    }
+  }, [profile]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setUploadAvatar(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatar(reader.result as string);
-        toast("Profile picture updated successfully");
+        setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveChanges = () => {
-    toast("Changes saved successfully");
+  const handleSaveChanges = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("email", email);
+
+      if (uploadAvatar) {
+        formData.append("avatar", uploadAvatar);
+      }
+
+      const res = await updateProfileMutation(formData).unwrap();
+
+      console.log(res);
+
+      // toast("Changes saved successfully");
+    } catch (error: any) {
+      toast.error(error?.data?.message);
+    } finally {
+      setUploadAvatar(null);
+    }
   };
 
   return (
@@ -40,14 +76,25 @@ export default function ProfileInfo() {
         {/* Profile Picture Section */}
         <div className='flex flex-col items-center'>
           <div className='relative w-32 h-32 md:w-40 md:h-40 mb-4'>
-            <Image
-              src={avatar || "/man.png"}
-              alt='Profile picture'
-              width={160}
-              height={160}
-              className='w-full h-full rounded-full object-cover border-4 border-primary'
-              priority
-            />
+            {imagePreview ? (
+              <Image
+                src={imagePreview}
+                alt='Profile picture'
+                width={160}
+                height={160}
+                className='w-full h-full rounded-full object-cover border-4 border-primary'
+                priority
+              />
+            ) : (
+              <Image
+                src={process.env.NEXT_PUBLIC_IMAGE_URL + avatar}
+                alt='Profile picture'
+                width={160}
+                height={160}
+                className='w-full h-full rounded-full object-cover border-4 border-primary'
+                priority
+              />
+            )}
             <button
               onClick={() => fileInputRef.current?.click()}
               className='absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full hover:bg-primary/90 transition-colors shadow-lg'

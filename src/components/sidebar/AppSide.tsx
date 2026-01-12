@@ -44,7 +44,7 @@ export default function DashboardSidebar() {
   if (
     pathname === "/signup" ||
     pathname === "/login" ||
-    pathname === "/forget-password" ||
+    pathname === "/forgot-password" ||
     pathname === "/verify-password" ||
     pathname === "/verify-otp" ||
     pathname === "/reset-password"

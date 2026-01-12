@@ -31,7 +31,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className='min-h-screen bg-background'>
+    <div className='min-h-[80vh] bg-background m-6 rounded-xl'>
       <div className='flex flex-col md:flex-row'>
         <SettingsSidebar
           activeSection={activeSection}

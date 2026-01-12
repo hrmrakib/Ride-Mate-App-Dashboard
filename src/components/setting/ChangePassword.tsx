@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useUpdatePasswordMutation } from "@/redux/features/setting/settingAPI";
 
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -13,7 +15,9 @@ export default function ChangePassword() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleChangePassword = () => {
+  const [updatePasswordMutation] = useUpdatePasswordMutation();
+
+  const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("All fields are required");
       return;
@@ -29,11 +33,21 @@ export default function ChangePassword() {
       return;
     }
 
-    toast.success("Password updated successfully!");
+    try {
+      const res = await updatePasswordMutation({
+        oldPassword: currentPassword,
+        newPassword: newPassword,
+      });
 
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+      console.log(res);
+      toast.success("Password updated successfully!");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
+    } finally {
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
   };
 
   return (
@@ -57,6 +71,7 @@ export default function ChangePassword() {
               type={showCurrentPassword ? "text" : "password"}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder='Old password'
               className='w-full px-4 py-3 bg-[#E6EAF0] text-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
             />
             <button
@@ -88,6 +103,7 @@ export default function ChangePassword() {
               type={showNewPassword ? "text" : "password"}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              placeholder='New password'
               className='w-full px-4 py-3 bg-[#E6EAF0] text-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
             />
             <button
@@ -119,6 +135,7 @@ export default function ChangePassword() {
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder='Confirm password'
               className='w-full px-4 py-3 bg-[#E6EAF0] text-[#333] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all pr-10'
             />
             <button

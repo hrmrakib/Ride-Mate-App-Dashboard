@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Info, Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Info, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useGetTransactionsQuery } from "@/redux/features/transactions/transactionAPI";
+import { IWalletTransaction } from "@/types/earning/earning.types";
 
 // Mock data matching the design
 const mockUsers = Array.from({ length: 60 }, (_, i) => ({
@@ -34,11 +36,15 @@ export default function EanringListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [actionModalOpen, setActionModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<
-    (typeof mockUsers)[0] | null
-  >(null);
+  const [selectedUser, setSelectedUser] = useState<IWalletTransaction | null>(
+    null
+  );
   const [selectType, setSelectType] = useState<string>("all-users");
   const itemsPerPage = 10;
+
+  const { data } = useGetTransactionsQuery({});
+
+  const transactions = data?.data || [];
 
   // Filter users based on search term
   const filteredUsers = mockUsers.filter(
@@ -54,7 +60,7 @@ export default function EanringListPage() {
   const endIndex = startIndex + itemsPerPage;
   const currentUsers = filteredUsers.slice(startIndex, endIndex);
 
-  const handleActionClick = (user: (typeof mockUsers)[0]) => {
+  const handleActionClick = (user: IWalletTransaction) => {
     setSelectedUser(user);
     setActionModalOpen(true);
   };
@@ -105,12 +111,32 @@ export default function EanringListPage() {
     { value: "all", label: "All" },
   ];
 
+  function secondsToTime(totalSeconds: number) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return { hours, minutes, seconds };
+  }
+  function secondsToReadable(totalSeconds: number) {
+    const { hours, minutes, seconds } = secondsToTime(totalSeconds);
+
+    const parts: string[] = [];
+
+    if (hours) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+    if (minutes) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+    if (seconds || parts.length === 0)
+      parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+
+    return parts.join(", ");
+  }
+
   return (
     <div className='min-h-screen bg-transparent p-6'>
       <div className='w-full'>
         {/* Header */}
         <div className='mb-6 bg-white flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mt-2.5 px-4 py-5 rounded-xl'>
-          <div className='flex items-center gap-6'>
+          {/* <div className='flex items-center gap-6'>
             {types?.map((type) => {
               const isActive = selectType === type.value;
 
@@ -128,7 +154,6 @@ export default function EanringListPage() {
                   >
                     {type.label}
 
-                    {/* Animated underline */}
                     <span
                       className={`
               absolute left-0 -bottom-1 h-[2px] w-full
@@ -142,9 +167,9 @@ export default function EanringListPage() {
                 </div>
               );
             })}
-          </div>
+          </div> */}
 
-          <div className='relative w-full sm:w-80 bg-[#524a4a] rounded-xl'>
+          <div className='justify-end relative w-full sm:w-80 bg-[#524a4a] rounded-xl'>
             <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
             <Input
               type='text'
@@ -167,73 +192,65 @@ export default function EanringListPage() {
               <thead className='bg-table-header-bg'>
                 <tr>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Profile
+                    #Serial
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Sl no.
+                    Date
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Name
+                    User Name
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Email
+                    Driver Name
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Contact Number
+                    Pickup
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Status
+                    Drop
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Role
+                    Amount
                   </th>
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Joined
-                  </th>
-                  <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
-                    Action
+                    Actions
                   </th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-gray-200'>
-                {currentUsers.map((user) => (
+                {transactions.map((user: IWalletTransaction, index: number) => (
                   <tr key={user.id} className='hover:bg-gray-50'>
-                    <td className='px-6 py-4'>
-                      <Avatar className='h-10 w-10'>
-                        <AvatarImage
-                          src={user.profileImage || "/user.jpg"}
-                          alt={user.name}
-                          width={40}
-                          height={40}
-                        />
-                        <AvatarFallback>
-                          {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
+                    <td className='px-6 py-4 text-base text-table-color font-medium'>
+                      {index + 1}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.slNo}
+                      {user?.created_at?.split("T")[0]}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.name}
+                      {user?.data?.user?.name || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.email}
+                      {user?.data?.driver?.name || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
+                    </td>
+
+                    <td className='px-6 py-4 text-base text-table-color font-medium'>
+                      {user?.data?.pickup_address || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.status}
+                      {user?.data?.dropoff_address || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.role}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.joined}
-                    </td>
-                    <td className='px-6 py-4 text-base text-table-color font-medium'>
-                      {user.contactNumber}
+                      {user?.data?.total_cost || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </td>
 
                     <td className='px-6 py-4'>
@@ -291,7 +308,7 @@ export default function EanringListPage() {
                           variant='ghost'
                           size='sm'
                           className='h-8 w-8 p-0'
-                          onClick={() => handleActionClick(user)}
+                          // onClick={() => handleActionClick(user)}
                         >
                           <Info className='h-4 w-4 text-gray-400' />
                         </Button>
@@ -379,7 +396,7 @@ export default function EanringListPage() {
                       User Id:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.slNo}
+                      {selectedUser.id}
                     </p>
                   </div>
                   <div className='flex items-center justify-between border-b pb-5'>
@@ -387,59 +404,70 @@ export default function EanringListPage() {
                       User Name:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.name}
+                      {selectedUser?.data?.user?.name || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </p>
                   </div>
                   <div className='flex items-center justify-between border-b pb-5'>
                     <Label className='text-[#333338] text-xl font-medium'>
-                      Email Address:
+                      User Email:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.email}
+                      {selectedUser?.data?.user?.email || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </p>
                   </div>
                   <div className='flex items-center justify-between border-b pb-5'>
                     <Label className='text-[#333338] text-xl font-medium'>
-                      Contact Number:
+                      Driver Name:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.contactNumber}
+                      {selectedUser?.data?.driver?.name || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </p>
                   </div>
                   <div className='flex items-center justify-between border-b pb-5'>
                     <Label className='text-[#333338] text-xl font-medium'>
-                      Country:
+                      Driver Email:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {selectedUser.country}
+                      {selectedUser?.data?.driver?.email || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
                     </p>
                   </div>
-                </div>
-
-                <div className='space-y-4 pt-4'>
                   <div className='flex items-center justify-between border-b pb-5'>
-                    <Label
-                      htmlFor='disable-access'
-                      className='text-[#333338] text-xl font-medium'
-                    >
-                      Disable User Access
+                    <Label className='text-[#333338] text-xl font-medium'>
+                      Total Cost:
                     </Label>
-                    <Switch
-                      id='disable-access'
-                      checked={selectedUser.disableAccess}
-                      onCheckedChange={(checked) =>
-                        handleToggleChange("disableAccess", checked)
-                      }
-                    />
+                    <p className='text-[#3e3e41] text-base font-medium'>
+                      {selectedUser?.data?.total_cost || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
+                    </p>
                   </div>
-                  <div className='flex items-center justify-between'>
-                    <Label
-                      htmlFor='delete-account'
-                      className='text-[#333338] text-xl font-medium'
-                    >
-                      Delete User Account
+                  <div className='flex items-center justify-between border-b pb-5'>
+                    <Label className='text-[#333338] text-xl font-medium'>
+                      status:
                     </Label>
-                    <Button className='bg-red-500'>Delete</Button>
+                    <p className='text-[#3e3e41] text-base font-medium'>
+                      {selectedUser?.data?.status || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className='flex items-center justify-between pb-5'>
+                    <Label className='text-[#333338] text-xl font-medium'>
+                      Time:
+                    </Label>
+                    <p className='text-[#3e3e41] text-base font-medium'>
+                      {secondsToReadable(Number(selectedUser?.data?.time)) || (
+                        <span className='text-red-400'>N/A</span>
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>

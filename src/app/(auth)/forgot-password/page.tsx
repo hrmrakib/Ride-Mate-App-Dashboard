@@ -9,12 +9,15 @@ import { ArrowLeft, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useForgotPasswordMutation } from "@/redux/features/auth/authAPI";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string }>({});
   const router = useRouter();
+
+  const [forgotPasswordMutation] = useForgotPasswordMutation();
 
   const validateForm = () => {
     const newErrors: { email?: string } = {};
@@ -37,14 +40,11 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await forgotPasswordMutation({ email }).unwrap();
 
+      router.push(`/verify-otp?email=${email}`);
       // In a real app, you would send the reset email here
       console.log("Password reset email sent to:", email);
-
-      // Redirect to a success page or show success message
-      alert("Password reset link has been sent to your email!");
     } catch (error) {
       console.error("Error sending reset email:", error);
       setErrors({ email: "Failed to send reset email. Please try again." });
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
                     }
                   }}
                   placeholder='Enter your email'
-                  className={`pl-10 h-12 bg-gray-50 border-gray-200 focus:border-orange-400 focus:ring-orange-400 ${
+                  className={`pl-10 h-12 bg-gray-50 text-base border-gray-200 focus:border-orange-400 focus:ring-orange-400 ${
                     errors.email
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                       : ""
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
             {/* Submit Button */}
             <Button
               type='submit'
-              className='w-full h-12 bg-orange-400 hover:bg-orange-500 text-white font-medium rounded-lg transition-colors'
+              className='w-full button'
               disabled={isLoading}
             >
               {isLoading ? "Sending..." : "Send OTP"}
@@ -132,7 +132,7 @@ export default function ForgotPasswordPage() {
               Already have an account?{" "}
               <Link
                 href='/auth/signin'
-                className='text-orange-400 hover:text-orange-500 font-medium transition-colors'
+                className='text-[#012B5B] hover:text-[#02428b] font-medium transition-colors'
               >
                 Sign in
               </Link>

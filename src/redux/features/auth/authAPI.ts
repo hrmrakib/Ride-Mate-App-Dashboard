@@ -1,8 +1,25 @@
 import baseAPI from "@/redux/api/api";
 
 const AuthenticationAPI = baseAPI.injectEndpoints({
-  endpoints: (builder) => ({}),
+  endpoints: (builder) => ({
+    forgotPassword: builder.mutation({
+      query: (body) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    verifyOTP: builder.mutation({
+      query: (body) => ({
+        url: "/auth/forgot-password/otp-verify",
+        method: "POST",
+        body,
+      }),
+    }),
+  }),
 });
 
-export const {} = AuthenticationAPI;
+export const { useForgotPasswordMutation, useVerifyOTPMutation } =
+  AuthenticationAPI;
 export default AuthenticationAPI;

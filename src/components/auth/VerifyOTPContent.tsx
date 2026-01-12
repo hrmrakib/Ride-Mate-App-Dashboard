@@ -1,12 +1,15 @@
+"use client";
+
 import type React from "react";
-import "use client";
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { useVerifyOTPMutation } from "@/redux/features/auth/authAPI";
+import { toast } from "sonner";
 
 export default function VerifyAccountPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -15,6 +18,11 @@ export default function VerifyAccountPage() {
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+
+  const [verifyOTPMutation] = useVerifyOTPMutation();
 
   useEffect(() => {
     // Focus on first input when component mounts
@@ -80,13 +88,13 @@ export default function VerifyAccountPage() {
 
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await verifyOTPMutation({
+        email: email,
+        otp: otpCode,
+      }).unwrap();
 
-      // For demo purposes, accept any 6-digit code
-      console.log("[v0] OTP verification attempted:", otpCode);
-
-      // Redirect to success page or dashboard
-      router.push("/auth/signin?verified=true");
+      toast.success("OTP verification successfully!");
+      router.push("/login");
     } catch (error) {
       setError("Invalid verification code. Please try again.");
       console.log(error);
@@ -159,7 +167,7 @@ export default function VerifyAccountPage() {
                   value={digit}
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className='w-12 h-12 text-center text-lg font-semibold border-2 rounded-full focus:border-orange-500 focus:ring-orange-500'
+                  className='w-12! h-12! text-center text-black text-xl font-semibold border-2 rounded-full focus:border-orange-500 focus:ring-orange-500'
                   placeholder='-'
                 />
               ))}
@@ -174,7 +182,7 @@ export default function VerifyAccountPage() {
             <Button
               type='submit'
               disabled={isLoading}
-              className='w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-medium transition-colors'
+              className='w-full button'
             >
               {isLoading ? "Verifying..." : "Verification"}
             </Button>

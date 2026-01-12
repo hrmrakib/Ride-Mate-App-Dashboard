@@ -87,7 +87,7 @@ export default function SignInPage() {
 
           {/* Header */}
           <div className='text-center mb-8'>
-            <h1 className='text-2xl font-bold text-gray-900 mb-2'>Sign in</h1>
+            <h1 className='text-2xl font-bold text-gray-900 mb-2'>Login in</h1>
             <p className='text-gray-600 text-sm leading-relaxed'>
               Enter your email address and password to access your account.
             </p>
@@ -109,7 +109,7 @@ export default function SignInPage() {
                   placeholder='Enter your email'
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`pl-10 bg-gray-50 border-gray-200 focus:bg-white ${
+                  className={`pl-10 h-12! bg-gray-50 border-gray-200 focus:bg-white ${
                     errors.email ? "border-red-500" : ""
                   }`}
                 />
@@ -133,7 +133,7 @@ export default function SignInPage() {
                   placeholder='Min 8 character'
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`pl-10 pr-10 bg-gray-50 border-gray-200 focus:bg-white ${
+                  className={`pl-10 pr-10 h-12! bg-gray-50 border-gray-200 focus:bg-white ${
                     errors.password ? "border-red-500" : ""
                   }`}
                 />
@@ -157,7 +157,7 @@ export default function SignInPage() {
             {/* Forgot Password Link */}
             <div className='text-right'>
               <Link
-                href='/auth/forgot-password'
+                href='/forgot-password'
                 className='text-[#333333] text-sm hover:text-[#012B5B] transition-colors'
               >
                 Forgot password?
