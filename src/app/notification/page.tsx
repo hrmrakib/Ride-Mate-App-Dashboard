@@ -1,9 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck, TrashIcon } from "lucide-react";
-import { useGetNotificationsQuery } from "@/redux/features/notification/notificationAPI";
+import {
+  useDeleteNotificationMutation,
+  useGetNotificationsQuery,
+  useToggleNotificationsMutation,
+} from "@/redux/features/notification/notificationAPI";
+import moment from "moment";
+import { toast } from "sonner";
 
 interface INotification {
   id: string;
@@ -15,34 +22,92 @@ interface INotification {
 }
 
 export default function NotificationsPage() {
-  const { data } = useGetNotificationsQuery({});
+  const { data, refetch } = useGetNotificationsQuery({});
+  const [toggleNotificationsMutation] = useToggleNotificationsMutation();
+  const [deleteNotificationMutation] = useDeleteNotificationMutation();
 
   const notifications = data?.data;
 
-  console.log(notifications);
+  const unreadCount = notifications?.filter(
+    (noti: any) => noti.unread === false
+  );
 
-  const handleToggleRead = (id: string) => {
-    // setNotifications(
-    //   notifications.map((notif) =>
-    //     notif.id === id ? { ...notif, isRead: !notif.isRead } : notif
-    //   )
-    // );
+  console.log(unreadCount);
+
+  const handleToggleRead = async (id: string, unread: boolean) => {
+    // console.log(id, unread);
+    // return;
+    // if (unread) {
+    //   unread = false;
+    // } else {
+    //   unread = true;
+    // }
+
+    try {
+      const res = await toggleNotificationsMutation({
+        activity_id: id,
+        unread: !unread,
+      }).unwrap();
+
+      console.log(res);
+
+      if (res?.count) {
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message);
+    } finally {
+      setTimeout(() => {
+        refetch();
+      }, 1400);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    // setNotifications(notifications.filter((notif) => notif.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await deleteNotificationMutation({
+        activity_id: id,
+      }).unwrap();
+
+      if (res?.count) {
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    // setNotifications(
-    //   notifications.map((notif) => ({ ...notif, isRead: true }))
-    // );
+  const handleDeleteAll = async () => {
+    try {
+      const res = await deleteNotificationMutation({}).unwrap();
+
+      if (res?.count) {
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
+    }
   };
 
-  // const unreadCount = notifications.filter((notif) => !notif.isRead).length;
+  const handleMarkAllAsRead = async () => {
+    try {
+      const res = await deleteNotificationMutation({}).unwrap();
+
+      console.log(res);
+
+      if (res?.count) {
+        refetch();
+        toast.success("All notification delete successfully!");
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
+    } finally {
+      refetch();
+    }
+  };
 
   return (
-    <main className='min-h-screen bg-transparent rounded-xl! p-6'>
+    <main className='bg-transparent rounded-xl! p-6'>
       <div className='bg-white! rounded-xl!'>
         {/* Header */}
         <header className='sticky top-0 z-40 bg-white rounded-xl! backdrop-blur supports-[backdrop-filter]:bg-background/60'>
@@ -53,18 +118,30 @@ export default function NotificationsPage() {
                   Notifications
                 </h1>
                 <p className='text-sm text-muted-foreground'>
-                  {/* {unreadCount} unread out of {notifications.length} total */}
+                  {unreadCount?.length} unread out of {notifications?.length}{" "}
+                  total
                 </p>
               </div>
-              {/* {unreadCount > 0 && (
-                <Button
-                  onClick={handleMarkAllAsRead}
-                  variant='outline'
-                  className='w-full sm:w-auto bg-transparent'
-                >
-                  Mark all as read
-                </Button>
-              )} */}
+              <div className='flex items-center gap-5'>
+                {notifications?.length > 0 && (
+                  <Button
+                    onClick={handleDeleteAll}
+                    variant='secondary'
+                    className='w-full sm:w-auto bg-transparent border border-gray-300 cursor-pointer'
+                  >
+                    Delete all
+                  </Button>
+                )}
+                {unreadCount?.length > 0 && (
+                  <Button
+                    onClick={handleMarkAllAsRead}
+                    variant='secondary'
+                    className='w-full sm:w-auto bg-transparent border border-gray-300 cursor-pointer'
+                  >
+                    Mark all as read
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -102,28 +179,21 @@ export default function NotificationsPage() {
                       }`}
                     >
                       <div className='flex flex-1 gap-4'>
-                        {/* Icon */}
-                        <div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-lg'>
-                          {/* {notification.icon} */}
-                        </div>
-
                         {/* Content */}
                         <div className='flex-1 min-w-0'>
                           <div className='flex items-start gap-2'>
                             <h3 className='font-semibold text-foreground text-pretty'>
-                              {/* {notification.title} */}
+                              {notification?.content}
                             </h3>
                             {!notification.unread && (
                               <div className='mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-500' />
                             )}
                           </div>
-                          <p className='mt-1 text-sm text-muted-foreground text-pretty'>
-                            {notification.content}
-                          </p>
-                          <p className='mt-2 text-xs text-muted-foreground'>
-                            {/* {formatDistanceToNow(notification.timestamp, {
-                            addSuffix: true,
-                          })} */}
+                          <p className='mt-1 text-sm text-[#333333] text-pretty'>
+                            {moment
+                              .utc(notification.timestamp)
+                              .local()
+                              .fromNow()}
                           </p>
                         </div>
                       </div>
@@ -134,7 +204,12 @@ export default function NotificationsPage() {
                         <Button
                           variant='ghost'
                           size='sm'
-                          onClick={() => handleToggleRead(notification.id)}
+                          onClick={() =>
+                            handleToggleRead(
+                              notification.id,
+                              notification.unread
+                            )
+                          }
                           title={
                             notification.unread
                               ? "Mark as unread"
