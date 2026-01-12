@@ -1,15 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ChevronLeft,
-  Calendar,
-  MapPin,
-  Phone,
-  FileText,
-  ArrowLeft,
-} from "lucide-react";
+import { Calendar, MapPin, Phone, FileText, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import { useGetUserTripDetailsQuery } from "@/redux/features/user/userAPI";
+import { useParams } from "next/navigation";
 
 interface Trip {
   id: number;
@@ -65,6 +60,11 @@ export default function ProfilePage() {
       price: "$147.80",
     },
   ]);
+  const params = useParams();
+
+  const { data } = useGetUserTripDetailsQuery({ userId: params.id as string });
+
+  console.log({ data });
 
   const handleBack = () => {
     window.history.back();

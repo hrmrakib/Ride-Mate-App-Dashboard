@@ -13,6 +13,13 @@ const userAPI = baseAPI.injectEndpoints({
       }),
     }),
 
+    getUserTripDetails: builder.query<any, { userId: string }>({
+      query: ({ userId }) => ({
+        url: `/admin/user-trip-details?user_id=${userId}`,
+        method: "GET",
+      }),
+    }),
+
     deleteUser: builder.mutation<any, { userId: string }>({
       query: ({ userId }) => ({
         url: `/admin/users`,
@@ -35,6 +42,7 @@ const userAPI = baseAPI.injectEndpoints({
 
 export const {
   useGetUserByRoleQuery,
+  useGetUserTripDetailsQuery,
   useDeleteUserMutation,
   usePendingUsersQuery,
 } = userAPI;

@@ -4,6 +4,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { BarChart3, Users } from "lucide-react";
 import EventChart from "@/components/chart/EventChart";
+import { useFetchOverviewDataQuery } from "@/redux/features/overview/overviewAPI";
 
 const StatCard = ({
   title,
@@ -32,29 +33,46 @@ const StatCard = ({
 );
 
 export default function Dashboard() {
+  const { data } = useFetchOverviewDataQuery({});
+
+  console.log(data);
+
+  const overview = data?.graph;
+
+  console.log(overview);
+
   return (
     <div className='bg-transparent p-6'>
       {/* Main Content */}
       <div className='py-8'>
         {/* Stats Cards */}
         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
-          <StatCard title='Total Revenue' value='$235.5' icon={BarChart3} />
           <StatCard
-            title="Today's Revenue"
-            value='$235.5'
+            title='Total Earnings'
+            value={data?.totalEarnings}
+            icon={BarChart3}
+          />
+          <StatCard
+            title='Total Users'
+            value={data?.totalUsers}
             icon={BarChart3}
             isNegative={true}
           />
-          <StatCard title='Total User' value='230' icon={Users} />
           <StatCard
-            title="Today's New User"
-            value='12'
+            title='New User'
+            value={data?.newUsers}
+            icon={Users}
+            isNegative={true}
+          />
+          <StatCard
+            title='Pending User Requests'
+            value={data?.pendingUserRequests}
             icon={Users}
             isNegative={true}
           />
         </div>
 
-        <EventChart />
+        <EventChart bookings={overview} />
       </div>
     </div>
   );
