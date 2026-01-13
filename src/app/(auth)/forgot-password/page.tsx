@@ -40,11 +40,13 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      const res = await forgotPasswordMutation({ email }).unwrap();
+      await forgotPasswordMutation({ email }).unwrap();
 
-      router.push(`/verify-otp?email=${email}`);
-      // In a real app, you would send the reset email here
-      console.log("Password reset email sent to:", email);
+      setTimeout(() => {
+        router.push(`/verify-otp?email=${email}`);
+      }, 1000);
+
+      console.log("forget-password res");
     } catch (error) {
       console.error("Error sending reset email:", error);
       setErrors({ email: "Failed to send reset email. Please try again." });

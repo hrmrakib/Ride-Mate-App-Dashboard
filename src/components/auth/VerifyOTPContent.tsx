@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useVerifyOTPMutation } from "@/redux/features/auth/authAPI";
 import { toast } from "sonner";
 
-export default function VerifyAccountPage() {
+export default function VerifyOTPContent() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -87,14 +87,18 @@ export default function VerifyAccountPage() {
     setError("");
 
     try {
-      // Simulate API call
       const res = await verifyOTPMutation({
         email: email,
         otp: otpCode,
       }).unwrap();
 
-      toast.success("OTP verification successfully!");
-      router.push("/login");
+      console.log(res);
+
+      if (res?.reset_token) {
+        localStorage.setItem("access_token", res?.reset_token);
+        toast.success("OTP verification successfully!");
+        router.push("/reset-password");
+      }
     } catch (error) {
       setError("Invalid verification code. Please try again.");
       console.log(error);

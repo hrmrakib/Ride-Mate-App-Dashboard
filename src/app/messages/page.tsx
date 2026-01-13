@@ -122,7 +122,7 @@ function MessageListContent() {
   const unreadCount = messages.filter((msg) => msg.unread).length;
 
   return (
-    <div className='flex flex-col md:flex-row h-screen bg-background'>
+    <div className='flex flex-col md:flex-row h-screen bg-background m-6 rounded-xl!'>
       <div className='w-full md:w-96 flex flex-col border-r border-border bg-card'>
         {/* Header */}
         <div className='p-4 border-b border-border'>

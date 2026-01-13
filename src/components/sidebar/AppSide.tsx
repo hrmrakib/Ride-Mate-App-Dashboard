@@ -38,7 +38,7 @@ export default function DashboardSidebar() {
     console.log("first");
     setIsLogoutModalOpen(true);
     // await logout();
-    // router.push("/signin");
+    router.push("/login");
   };
 
   if (
@@ -101,6 +101,15 @@ export default function DashboardSidebar() {
                 active={
                   pathname === "/notification" ||
                   pathname.startsWith("/notification/")
+                }
+              />
+
+              <NavItem
+                href='/messages'
+                icon={Settings}
+                label='Messages'
+                active={
+                  pathname === "/messages" || pathname.startsWith("/messages/")
                 }
               />
 
