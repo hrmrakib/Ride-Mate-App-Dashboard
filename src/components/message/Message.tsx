@@ -68,6 +68,7 @@ export default function MessagePage() {
   const { data: profile, isFetching } = useGetProfileQuery(undefined, {
     skip: hasToken === false,
   });
+
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [page, setPage] = useState(1);
@@ -143,9 +144,7 @@ export default function MessagePage() {
     return () => observer.disconnect();
   }, [isFetching, messages]);
 
-  /* =======================
-     5s DEBOUNCE LOGIC
-     ======================= */
+  //  5s DEBOUNCE LOGIC
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(debouncedSearch);

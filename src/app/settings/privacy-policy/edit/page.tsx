@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -71,7 +72,7 @@ const EditPrivacyPolicy = () => {
         page_name: "privacy-policy",
         content: content,
       }).unwrap();
-      
+
       if (res?.content) {
         toast.success("Privacy Policy saved successfully!");
         router.push("/settings");

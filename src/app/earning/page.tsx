@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useGetTransactionsQuery } from "@/redux/features/transactions/transactionAPI";
 import { IWalletTransaction } from "@/types/earning/earning.types";
@@ -39,7 +38,6 @@ export default function EanringListPage() {
   const [selectedUser, setSelectedUser] = useState<IWalletTransaction | null>(
     null
   );
-  const [selectType, setSelectType] = useState<string>("all-users");
   const itemsPerPage = 10;
 
   const { data } = useGetTransactionsQuery({});
@@ -63,15 +61,6 @@ export default function EanringListPage() {
   const handleActionClick = (user: IWalletTransaction) => {
     setSelectedUser(user);
     setActionModalOpen(true);
-  };
-
-  const handleToggleChange = (
-    field: "disableAccess" | "deleteAccount",
-    value: boolean
-  ) => {
-    if (selectedUser) {
-      setSelectedUser({ ...selectedUser, [field]: value });
-    }
   };
 
   // Generate page numbers for pagination
@@ -103,13 +92,6 @@ export default function EanringListPage() {
 
     return pages;
   };
-
-  const types = [
-    { value: "today", label: "Today" },
-    { value: "this-week", label: "This Week" },
-    { value: "this-month", label: "This Month" },
-    { value: "all", label: "All" },
-  ];
 
   function secondsToTime(totalSeconds: number) {
     const hours = Math.floor(totalSeconds / 3600);
