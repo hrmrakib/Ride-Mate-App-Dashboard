@@ -1,73 +1,48 @@
 "use client";
 
-export default function PrivacyPolicy() {
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useGetPrivacyPolicyQuery } from "@/redux/features/setting/settingAPI";
+
+export default function PrivacyPolicyPage() {
+  const { data: privacyPolicy } = useGetPrivacyPolicyQuery({});
+
   return (
-    <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl text-[#333] font-bold mb-6'>
-        Privacy and Policy
-      </h2>
+    <div className='flex min-h-screen bg-gray-50'>
+      <div className='flex-1 w-full'>
+        <main className='w-full p-4 md:p-6'>
+          <div className='max-w-3xl mx-auto'>
+            <div className='mb-6 flex items-center justify-between'>
+              <Link
+                href='/settings'
+                className='inline-flex items-center text-primary hover:text-[#012B5B]'
+              >
+                <ArrowLeft className='mr-2 h-4 w-4' />
+                <span className='text-xl font-semibold'>Privacy Policy</span>
+              </Link>
 
-      <div className='space-y-6 max-w-3xl text-foreground/80'>
-        <section>
-          <h3 className='text-lg font-semibold text-[#333] mb-3'>
-            Privacy Policy
-          </h3>
-          <p>
-            Your privacy is important to us. This Privacy Policy explains how we
-            collect, use, disclose, and otherwise handle your information.
-          </p>
-        </section>
+              <Link
+                href='/settings/privacy-policy/edit'
+                className='inline-flex items-center text-primary hover:text-[#012B5B] border border-[#012B5B] rounded-md px-4 py-1.5'
+              >
+                <span className='text-xl font-semibold text-black'>Edit</span>
+              </Link>
+            </div>
 
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Information We Collect</h3>
-          <p>
-            We collect information you provide directly to us, such as when you
-            create an account, make a purchase, or contact us for support. This
-            may include your name, email address, postal address, phone number,
-            and payment information.
-          </p>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>
-            How We Use Your Information
-          </h3>
-          <p>We use the information we collect to:</p>
-          <ul className='list-disc list-inside space-y-2 mt-2'>
-            <li>Provide, maintain, and improve our services</li>
-            <li>Process transactions and send related information</li>
-            <li>Send promotional communications (with your consent)</li>
-            <li>Respond to your comments and questions</li>
-            <li>Comply with legal obligations</li>
-          </ul>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Data Security</h3>
-          <p>
-            We implement appropriate technical and organizational measures
-            designed to protect personal information against unauthorized
-            access, alteration, disclosure, or destruction.
-          </p>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Your Rights</h3>
-          <p>
-            You have the right to access, modify, or delete your personal
-            information. You may also opt-out of receiving promotional
-            communications at any time.
-          </p>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Changes to This Policy</h3>
-          <p>
-            We may update this Privacy Policy from time to time. We will notify
-            you of any changes by posting the new Privacy Policy on this page
-            and updating the date at the top.
-          </p>
-        </section>
+            <div>
+              {privacyPolicy?.content ? (
+                <div
+                  className='prose prose-sm max-w-none text-black'
+                  dangerouslySetInnerHTML={{
+                    __html: privacyPolicy?.content,
+                  }}
+                />
+              ) : (
+                <p>Loading content...</p>
+              )}
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

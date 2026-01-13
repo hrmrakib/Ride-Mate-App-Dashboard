@@ -1,129 +1,30 @@
-// "use client";
-
-// import { useEffect, useRef, useState } from "react";
-// import Quill from "quill";
-// import "quill/dist/quill.snow.css";
-// import { Button } from "@/components/ui/button";
-// import {
-//   useGetTermsAndConditionsQuery,
-//   useSetTermsAndConditionsMutation,
-// } from "@/redux/feature/settingAPI";
-// import Loading from "@/components/loading/Loading";
-
-// const EditAboutUs = () => {
-//   const editorRef = useRef<HTMLDivElement>(null);
-//   const quillRef = useRef<Quill | null>(null);
-//   const [content, setContent] = useState<string>("");
-
-//   const {
-//     data: terms,
-//     isLoading,
-//     isSuccess,
-//   } = useGetTermsAndConditionsQuery({});
-//   const [setTermsAndConditions, { isLoading: isSaving }] =
-//     useSetTermsAndConditionsMutation();
-
-//   // Initialize Quill once
-//   useEffect(() => {
-//     const loadQuill = async () => {
-//       const Quill = (await import("quill")).default;
-
-//       if (
-//         editorRef.current &&
-//         !editorRef.current.classList.contains("ql-container")
-//       ) {
-//         const quill = new Quill(editorRef.current, {
-//           theme: "snow",
-//           placeholder: "Enter your Terms and Conditions...",
-//         });
-
-//         quillRef.current = quill;
-
-//         quill.on("text-change", () => {
-//           const html = quill.root.innerHTML;
-//           setContent(html);
-//         });
-//       }
-//     };
-
-//     if (typeof window !== "undefined") {
-//       loadQuill();
-//     }
-//   }, []);
-
-//   // Paste fetched terms into editor once available
-//   useEffect(() => {
-//     if (terms?.description && quillRef.current) {
-//       quillRef.current.clipboard.dangerouslyPasteHTML(terms.description);
-//       setContent(terms.description); // sync initial state
-//     }
-//   }, [terms]);
-
-//   const handleSubmit = async () => {
-//     try {
-//       const res = await setTermsAndConditions({
-//         description: content,
-//       }).unwrap();
-//       alert("Terms and Conditions saved successfully!");
-//     } catch (err) {
-//       console.error(err);
-//       alert("Failed to save.");
-//     }
-//   };
-
-//   return (
-//     <div className='min-h-[75vh] w-[96%] mx-auto flex flex-col justify-between gap-6'>
-//       <div className='space-y-6'>
-//         <div className='h-auto'>
-//           <div
-//             ref={editorRef}
-//             id='editor'
-//             className='h-[50vh] bg-white text-base'
-//           />
-//         </div>
-//       </div>
-
-//       <div className='flex justify-end'>
-//         <Button
-//           onClick={handleSubmit}
-//           disabled={isSaving}
-//           className='bg-primary hover:bg-teal-700'
-//         >
-//           {isSaving ? "Saving..." : "Save Content"}
-//         </Button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default EditAboutUs;
-
-// ---------------------------------------------------------------------------------------------------------------------------
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import Quill from "quill";
+// @ts-ignore
 import "quill/dist/quill.snow.css";
 import { Button } from "@/components/ui/button";
-import {
-  useGetTermsAndConditionsQuery,
-  useSetTermsAndConditionsMutation,
-} from "@/redux/feature/settingAPI";
+
 import Loading from "@/components/loading/Loading";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  useGetTermsAndConditionsQuery,
+  useUpdateContextMutation,
+} from "@/redux/features/setting/settingAPI";
+import { ArrowLeft } from "lucide-react";
 
-const EditAboutUs = () => {
+const EditTermsAndConditions = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
   const [content, setContent] = useState<string>("");
   const router = useRouter();
 
-  const { data: terms, isLoading } = useGetTermsAndConditionsQuery({});
+  const { data: privacyPolicy, isLoading } = useGetTermsAndConditionsQuery({});
 
-  const [setTermsAndConditions, { isLoading: isSaving }] =
-    useSetTermsAndConditionsMutation();
+  const [setPrivacyPolicy, { isLoading: isSaving }] =
+    useUpdateContextMutation();
 
   useEffect(() => {
     let initialized = false;
@@ -142,9 +43,9 @@ const EditAboutUs = () => {
 
         quillRef.current = quill;
 
-        if (terms?.description) {
-          quill.root.innerHTML = terms.description;
-          setContent(terms.description);
+        if (privacyPolicy?.content) {
+          quill.root.innerHTML = privacyPolicy.content;
+          setContent(privacyPolicy.content);
         }
 
         quill.on("text-change", () => {
@@ -160,16 +61,20 @@ const EditAboutUs = () => {
     return () => {
       initialized = true;
     };
-  }, [terms]);
+  }, [privacyPolicy]);
 
-  if (isLoading && !terms && !quillRef.current) return <Loading />;
+  if (isLoading && !privacyPolicy && !quillRef.current) return <Loading />;
 
   const handleSubmit = async () => {
     try {
-      const res =await setTermsAndConditions({ description: content }).unwrap();
-      if (res?.description) {
+      const res = await setPrivacyPolicy({
+        page_name: "terms",
+        content: content,
+      }).unwrap();
+
+      if (res?.content) {
         toast.success("Terms and Conditions saved successfully!");
-        router.push("/setting/terms-condition");
+        router.push("/settings");
       } else {
         toast.error("Failed to save.");
       }
@@ -179,12 +84,22 @@ const EditAboutUs = () => {
   };
 
   return (
-    <div className='min-h-[75vh] w-[96%] mx-auto flex flex-col justify-between gap-6'>
+    <div className='min-h w-[96%] mx-auto flex flex-col justify-between gap-6'>
+      <div className='my-2 flex items-center justify-between'>
+        <button
+          onClick={() => router.back()}
+          className='inline-flex items-center text-primary hover:text-[#012B5B] cursor-pointer'
+        >
+          <ArrowLeft className='mr-2 h-4 w-4' />
+          <span className='text-xl font-semibold'>Terms & Conditions</span>
+        </button>
+      </div>
+
       <div className='space-y-6'>
         <div className='h-auto'>
           <div
             ref={editorRef}
-            className='h-[50vh] bg-white text-base'
+            className='h-[50vh] bg-white text-black text-base'
             id='quill-editor'
           />
         </div>
@@ -194,7 +109,7 @@ const EditAboutUs = () => {
         <Button
           onClick={handleSubmit}
           disabled={isSaving}
-          className='bg-primary hover:bg-teal-700'
+          className='w-auto! h-11! button'
         >
           {isSaving ? "Saving..." : "Save Content"}
         </Button>
@@ -203,4 +118,4 @@ const EditAboutUs = () => {
   );
 };
 
-export default EditAboutUs;
+export default EditTermsAndConditions;

@@ -2,26 +2,29 @@
 
 import { useEffect, useRef, useState } from "react";
 import Quill from "quill";
+// @ts-ignore
 import "quill/dist/quill.snow.css";
 import { Button } from "@/components/ui/button";
-import {
-  useGetTrustAndSafetyQuery,
-  useSetTrustAndSafetyMutation,
-} from "@/redux/feature/settingAPI";
+
 import Loading from "@/components/loading/Loading";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  useGetAboutUsQuery,
+  useUpdateContextMutation,
+} from "@/redux/features/setting/settingAPI";
+import { ArrowLeft } from "lucide-react";
 
-const TrustAndSafetyPage = () => {
+const EditAboutUs = () => {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
   const [content, setContent] = useState<string>("");
   const router = useRouter();
 
-  const { data: trustAndSafety, isLoading } = useGetTrustAndSafetyQuery({});
+  const { data: privacyPolicy, isLoading } = useGetAboutUsQuery({});
 
-  const [setTrustAndSafety, { isLoading: isSaving }] =
-    useSetTrustAndSafetyMutation();
+  const [setPrivacyPolicy, { isLoading: isSaving }] =
+    useUpdateContextMutation();
 
   useEffect(() => {
     let initialized = false;
@@ -40,9 +43,9 @@ const TrustAndSafetyPage = () => {
 
         quillRef.current = quill;
 
-        if (trustAndSafety?.description) {
-          quill.root.innerHTML = trustAndSafety.description;
-          setContent(trustAndSafety.description);
+        if (privacyPolicy?.content) {
+          quill.root.innerHTML = privacyPolicy.content;
+          setContent(privacyPolicy.content);
         }
 
         quill.on("text-change", () => {
@@ -58,16 +61,20 @@ const TrustAndSafetyPage = () => {
     return () => {
       initialized = true;
     };
-  }, [trustAndSafety]);
+  }, [privacyPolicy]);
 
-  if (isLoading && !trustAndSafety && !quillRef.current) return <Loading />;
+  if (isLoading && !privacyPolicy && !quillRef.current) return <Loading />;
 
   const handleSubmit = async () => {
     try {
-      const res = await setTrustAndSafety({ description: content }).unwrap();
-      if (res?.description) {
-        toast.success("Terms and Conditions saved successfully!");
-        router.push("/setting/terms-condition");
+      const res = await setPrivacyPolicy({
+        page_name: "about-us",
+        content: content,
+      }).unwrap();
+
+      if (res?.content) {
+        toast.success("About Us saved successfully!");
+        router.push("/settings");
       } else {
         toast.error("Failed to save.");
       }
@@ -77,12 +84,22 @@ const TrustAndSafetyPage = () => {
   };
 
   return (
-    <div className='min-h-[75vh] w-[96%] mx-auto flex flex-col justify-between gap-6'>
+    <div className='min-h w-[96%] mx-auto flex flex-col justify-between gap-6'>
+      <div className='my-2 flex items-center justify-between'>
+        <button
+          onClick={() => router.back()}
+          className='inline-flex items-center text-primary hover:text-[#012B5B] cursor-pointer'
+        >
+          <ArrowLeft className='mr-2 h-4 w-4' />
+          <span className='text-xl font-semibold'>About Us</span>
+        </button>
+      </div>
+
       <div className='space-y-6'>
         <div className='h-auto'>
           <div
             ref={editorRef}
-            className='h-[50vh] bg-white text-base'
+            className='h-[50vh] bg-white text-black text-base'
             id='quill-editor'
           />
         </div>
@@ -92,7 +109,7 @@ const TrustAndSafetyPage = () => {
         <Button
           onClick={handleSubmit}
           disabled={isSaving}
-          className='bg-primary hover:bg-teal-700'
+          className='w-auto! h-11! button'
         >
           {isSaving ? "Saving..." : "Save Content"}
         </Button>
@@ -101,4 +118,4 @@ const TrustAndSafetyPage = () => {
   );
 };
 
-export default TrustAndSafetyPage;
+export default EditAboutUs;

@@ -1,67 +1,48 @@
 "use client";
 
-export default function TermsAndService() {
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useGetTermsAndConditionsQuery } from "@/redux/features/setting/settingAPI";
+
+export default function TermsAndConditionPage() {
+  const { data: privacyPolicy } = useGetTermsAndConditionsQuery({});
+
   return (
-    <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl font-bold text-[#333] mb-6'>Terms and Service</h2>
+    <div className='flex min-h-screen bg-gray-50'>
+      <div className='flex-1 w-full'>
+        <main className='w-full p-4 md:p-6'>
+          <div className='max-w-3xl mx-auto'>
+            <div className='mb-6 flex items-center justify-between'>
+              <Link
+                href='/settings'
+                className='inline-flex items-center text-primary hover:text-[#012B5B]'
+              >
+                <ArrowLeft className='mr-2 h-4 w-4' />
+                <span className='text-xl font-semibold'>Terms & Conditions</span>
+              </Link>
 
-      <div className='space-y-6 max-w-3xl text-foreground/80'>
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>1. Acceptance of Terms</h3>
-          <p>
-            By accessing and using this website, you accept and agree to be
-            bound by the terms and provision of this agreement. If you do not
-            agree to abide by the above, please do not use this service.
-          </p>
-        </section>
+              <Link
+                href='/settings/terms-condition/edit'
+                className='inline-flex items-center text-primary hover:text-[#012B5B] border border-[#012B5B] rounded-md px-4 py-1.5'
+              >
+                <span className='text-xl font-semibold text-black'>Edit</span>
+              </Link>
+            </div>
 
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>2. Use License</h3>
-          <p>
-            Permission is granted to temporarily download one copy of the
-            materials (information or software) on our website for personal,
-            non-commercial transitory viewing only. This is the grant of a
-            license, not a transfer of title, and under this license you may
-            not:
-          </p>
-          <ul className='list-disc list-inside space-y-2 mt-2'>
-            <li>Modify or copy the materials</li>
-            <li>
-              Use the materials for any commercial purpose or for any public
-              display
-            </li>
-            <li>
-              Attempt to decompile or reverse engineer any software contained on
-              the website
-            </li>
-            <li>
-              Remove any copyright or other proprietary notations from the
-              materials
-            </li>
-          </ul>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>3. Disclaimer</h3>
-          <p>
-            The materials on our website are provided on an &apos;as is&apos;
-            basis. We make no warranties, expressed or implied, and hereby
-            disclaim and negate all other warranties including, without
-            limitation, implied warranties or conditions of merchantability,
-            fitness for a particular purpose, or non-infringement of
-            intellectual property or other violation of rights.
-          </p>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>4. Limitations</h3>
-          <p>
-            In no event shall our company or its suppliers be liable for any
-            damages (including, without limitation, damages for loss of data or
-            profit, or due to business interruption) arising out of the use or
-            inability to use the materials on our website.
-          </p>
-        </section>
+            <div>
+              {privacyPolicy?.content ? (
+                <div
+                  className='prose prose-sm max-w-none text-black'
+                  dangerouslySetInnerHTML={{
+                    __html: privacyPolicy?.content,
+                  }}
+                />
+              ) : (
+                <p>Loading content...</p>
+              )}
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

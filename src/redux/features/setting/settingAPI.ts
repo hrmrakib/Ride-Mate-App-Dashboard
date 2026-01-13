@@ -33,6 +33,27 @@ const userAPI = baseAPI.injectEndpoints({
         body,
       }),
     }),
+
+    getPrivacyPolicy: builder.query({
+      query: () => ({
+        url: `/context-pages/privacy-policy`,
+        method: "GET",
+      }),
+    }),
+
+    getTermsAndConditions: builder.query({
+      query: () => ({
+        url: `/context-pages/terms`,
+        method: "GET",
+      }),
+    }),
+
+    getAboutUs: builder.query({
+      query: () => ({
+        url: `/context-pages/about-us`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -41,6 +62,9 @@ export const {
   useUpdateProfileMutation,
   useUpdatePasswordMutation,
   useUpdateContextMutation,
+  useGetPrivacyPolicyQuery,
+  useGetTermsAndConditionsQuery,
+  useGetAboutUsQuery,
 } = userAPI;
 
 export default userAPI;

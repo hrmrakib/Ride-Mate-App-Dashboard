@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-// import { useGetPrivacyPolicyQuery } from "@/redux/feature/settingAPI";
+import { useGetPrivacyPolicyQuery } from "@/redux/features/setting/settingAPI";
 
 export default function PrivacyPolicyPage() {
-  // const { data: privacyPolicy, isLoading } = useGetPrivacyPolicyQuery({});
+  const { data: privacyPolicy } = useGetPrivacyPolicyQuery({});
 
   return (
     <div className='flex min-h-screen bg-gray-50'>
@@ -36,17 +36,20 @@ export default function PrivacyPolicyPage() {
             </div>
 
             <div>
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Exercitationem porro incidunt impedit minus dolorem rerum. Inventore eaque accusamus, cum doloribus laudantium ipsam quam tenetur dolore corporis, adipisci aliquid accusantium voluptates.
-              {/* {privacyPolicy?.description ? (
+              Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+              Exercitationem porro incidunt impedit minus dolorem rerum.
+              Inventore eaque accusamus, cum doloribus laudantium ipsam quam
+              tenetur dolore corporis, adipisci aliquid accusantium voluptates.
+              {privacyPolicy?.content ? (
                 <div
                   className='prose prose-sm max-w-none'
                   dangerouslySetInnerHTML={{
-                    __html: privacyPolicy?.description,
+                    __html: privacyPolicy?.content,
                   }}
                 />
               ) : (
                 <p>Loading content...</p>
-              )} */}
+              )}
             </div>
           </div>
         </main>

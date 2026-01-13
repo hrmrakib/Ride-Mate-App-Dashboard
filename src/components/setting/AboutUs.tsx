@@ -1,75 +1,48 @@
 "use client";
 
-export default function AboutUs() {
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useGetAboutUsQuery } from "@/redux/features/setting/settingAPI";
+
+export default function TermsAndConditionPage() {
+  const { data: privacyPolicy } = useGetAboutUsQuery({});
+
   return (
-    <div className='w-full p-6 md:p-12'>
-      <h2 className='text-2xl md:text-3xl text-[#333] font-bold mb-6'>
-        About Us
-      </h2>
+    <div className='flex min-h-screen bg-gray-50'>
+      <div className='flex-1 w-full'>
+        <main className='w-full p-4 md:p-6'>
+          <div className='max-w-3xl mx-auto'>
+            <div className='mb-6 flex items-center justify-between'>
+              <Link
+                href='/settings'
+                className='inline-flex items-center text-primary hover:text-[#012B5B]'
+              >
+                <ArrowLeft className='mr-2 h-4 w-4' />
+                <span className='text-xl font-semibold'>About Us</span>
+              </Link>
 
-      <div className='space-y-6 max-w-3xl text-foreground/80'>
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Our Mission</h3>
-          <p>
-            Our mission is to provide exceptional products and services that
-            empower our customers to achieve their goals. We are committed to
-            innovation, quality, and customer satisfaction in everything we do.
-          </p>
-        </section>
+              <Link
+                href='/settings/about-us/edit'
+                className='inline-flex items-center text-primary hover:text-[#012B5B] border border-[#012B5B] rounded-md px-4 py-1.5'
+              >
+                <span className='text-xl font-semibold text-black'>Edit</span>
+              </Link>
+            </div>
 
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Who We Are</h3>
-          <p>
-            Founded in 2020, we are a dedicated team of professionals passionate
-            about delivering excellence. Our diverse team brings together
-            expertise from various fields to create innovative solutions for our
-            customers.
-          </p>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Our Values</h3>
-          <ul className='list-disc list-inside space-y-2'>
-            <li>
-              <strong>Integrity:</strong> We conduct our business with honesty
-              and transparency
-            </li>
-            <li>
-              <strong>Innovation:</strong> We continually seek new ways to
-              improve and evolve
-            </li>
-            <li>
-              <strong>Customer Focus:</strong> Your satisfaction is our top
-              priority
-            </li>
-            <li>
-              <strong>Excellence:</strong> We strive for the highest quality in
-              all aspects of our work
-            </li>
-            <li>
-              <strong>Collaboration:</strong> We believe in the power of
-              teamwork and partnership
-            </li>
-          </ul>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Our Team</h3>
-          <p>
-            Our team consists of experienced professionals who are dedicated to
-            helping you succeed. Whether you have questions, need support, or
-            want to collaborate, we are here to help.
-          </p>
-        </section>
-
-        <section>
-          <h3 className='text-lg font-semibold mb-3'>Get In Touch</h3>
-          <p>
-            Have questions or want to learn more about what we do? We&apos;d
-            love to hear from you! Feel free to reach out through our contact
-            form or email us directly.
-          </p>
-        </section>
+            <div>
+              {privacyPolicy?.content ? (
+                <div
+                  className='prose prose-sm max-w-none text-black'
+                  dangerouslySetInnerHTML={{
+                    __html: privacyPolicy?.content,
+                  }}
+                />
+              ) : (
+                <p>Loading content...</p>
+              )}
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

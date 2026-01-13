@@ -1,51 +1,117 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-// import { useGetTermsAndConditionsQuery } from "@/redux/feature/settingAPI";
+import { useEffect, useRef, useState } from "react";
+import Quill from "quill";
+// @ts-ignore
+import "quill/dist/quill.snow.css";
+import { Button } from "@/components/ui/button";
 
-export default function TermsConditionPage() {
-  // const { data: terms, isLoading } = useGetTermsAndConditionsQuery({});
+import Loading from "@/components/loading/Loading";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  useGetTermsAndConditionsQuery,
+  useUpdateContextMutation,
+} from "@/redux/features/setting/settingAPI";
+import { ArrowLeft } from "lucide-react";
+
+const EditPrivacyPolicy = () => {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<Quill | null>(null);
+  const [content, setContent] = useState<string>("");
+  const router = useRouter();
+
+  const { data: privacyPolicy, isLoading } = useGetTermsAndConditionsQuery({});
+
+  const [setPrivacyPolicy, { isLoading: isSaving }] =
+    useUpdateContextMutation();
+
+  useEffect(() => {
+    let initialized = false;
+
+    const init = async () => {
+      if (initialized || quillRef.current) return;
+      initialized = true;
+
+      const Quill = (await import("quill")).default;
+
+      if (editorRef.current && !editorRef.current.querySelector(".ql-editor")) {
+        const quill = new Quill(editorRef.current, {
+          theme: "snow",
+          placeholder: "Enter your Terms and Conditions...",
+        });
+
+        quillRef.current = quill;
+
+        if (privacyPolicy?.content) {
+          quill.root.innerHTML = privacyPolicy.content;
+          setContent(privacyPolicy.content);
+        }
+
+        quill.on("text-change", () => {
+          setContent(quill.root.innerHTML);
+        });
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      init();
+    }
+
+    return () => {
+      initialized = true;
+    };
+  }, [privacyPolicy]);
+
+  if (isLoading && !privacyPolicy && !quillRef.current) return <Loading />;
+
+  const handleSubmit = async () => {
+    try {
+      const res = await setPrivacyPolicy({ description: content }).unwrap();
+      if (res?.description) {
+        toast.success("Terms and Conditions saved successfully!");
+        router.push("/setting/privacy-policy");
+      } else {
+        toast.error("Failed to save.");
+      }
+    } catch {
+      toast.error("Save failed.");
+    }
+  };
 
   return (
-    <div className='flex min-h-screen bg-gray-50'>
-      <div className='flex-1 w-full'>
-        <main className='w-full p-4 md:p-6'>
-          <div className='max-w-3xl mx-auto'>
-            <div className='mb-6 flex items-center justify-between'>
-              <Link
-                href='/setting'
-                className='inline-flex items-center text-primary hover:text-teal-700'
-              >
-                <ArrowLeft className='mr-2 h-4 w-4' />
-                <span className='text-xl font-semibold'>Terms & Condition</span>
-              </Link>
+    <div className='min-h w-[96%] mx-auto flex flex-col justify-between gap-6'>
+      <div className='my-2 flex items-center justify-between'>
+        <button
+          onClick={() => router.back()}
+          className='inline-flex items-center text-primary hover:text-[#012B5B] cursor-pointer'
+        >
+          <ArrowLeft className='mr-2 h-4 w-4' />
+          <span className='text-xl font-semibold'>Terms & Conditions</span>
+        </button>
+      </div>
 
-              <Link
-                href='/setting/terms-condition/edit'
-                className='inline-flex items-center text-primary hover:text-teal-700 border border-[#760C2A] rounded-md px-4 py-1.5'
-              >
-                <span className='text-xl font-semibold'>Edit</span>
-              </Link>
-            </div>
+      <div className='space-y-6'>
+        <div className='h-auto'>
+          <div
+            ref={editorRef}
+            className='h-[50vh] bg-white text-black text-base'
+            id='quill-editor'
+          />
+        </div>
+      </div>
 
-            <div>
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero
-              quis veritatis sint, ab saepe illo omnis sed quisquam ad neque
-              reiciendis obcaecati quia, sapiente necessitatibus aliquam.
-              Recusandae obcaecati qui culpa!
-              {/* {terms?.description ? (
-                <div
-                  className='prose prose-sm max-w-none'
-                  dangerouslySetInnerHTML={{ __html: terms.description }}
-                />
-              ) : (
-                <p>Loading content...</p>
-              )} */}
-            </div>
-          </div>
-        </main>
+      <div className='flex justify-end'>
+        <Button
+          onClick={handleSubmit}
+          disabled={isSaving}
+          className='w-auto! h-11! button'
+        >
+          {isSaving ? "Saving..." : "Save Content"}
+        </Button>
       </div>
     </div>
   );
-}
+};
+
+export default EditPrivacyPolicy;
