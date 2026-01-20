@@ -86,7 +86,7 @@ export default function MessagePage() {
       search: debouncedSearch,
       unread: activeTab,
     },
-    { skip: false }
+    { skip: false },
   );
 
   const messagesData = messagesResponse?.data || [];
@@ -115,7 +115,7 @@ export default function MessagePage() {
 
     setMessages((prev) => {
       const newItems = messagesData.filter(
-        (msg) => !prev.some((p) => p.id === msg.id)
+        (msg) => !prev.some((p) => p.id === msg.id),
       );
 
       return [...newItems, ...prev];
@@ -136,7 +136,7 @@ export default function MessagePage() {
         root: null,
         rootMargin: "20px", // preload early
         threshold: 0.1,
-      }
+      },
     );
 
     if (loaderRef.current) observer.observe(loaderRef.current);
@@ -185,21 +185,6 @@ export default function MessagePage() {
     };
 
     return map[role] || "/dashboard/user/message";
-  };
-
-  const handleSendMessageOLD = () => {
-    if (!messageInput.trim()) return;
-
-    socket?.emit(
-      "send_message",
-      {
-        chat_id,
-        text: messageInput,
-      },
-      () => refetchMessages()
-    );
-
-    setMessageInput("");
   };
 
   const handleSendMessage = () => {
@@ -273,7 +258,8 @@ export default function MessagePage() {
       setIsMobileView(true);
     }
 
-    router.push(`${getRoleBasePath()}/${contact.id}`);
+    // router.push(`${getRoleBasePath()}/${contact.id}`);
+    router.push(`/messages/${contact.id}`);
   };
 
   const formatTime = (ts?: string) => {
@@ -283,8 +269,8 @@ export default function MessagePage() {
   };
 
   return (
-    <div className='bg-transparent flex flex-col h-[calc(100vh-140px)] m-6'>
-      <div className='flex-1 flex overflow-hidden'>
+    <div className='bg-transparent flex flex-col h-[calc(100vh-190px)] m-6 rounded-xl!'>
+      <div className='flex-1 flex overflow-hidden rounded-xl!'>
         <div
           className={`min-h-0 w-full sm:w-80 bg-white border-r border-gray-200 flex flex-col ${
             isMobileView ? "hidden sm:flex" : "flex"
@@ -298,7 +284,7 @@ export default function MessagePage() {
                 placeholder='Search messages or contacts...'
                 value={debouncedSearch}
                 onChange={(e) => setDebouncedSearch(e.target.value)}
-                className='pl-10 bg-gray-50 border-gray-200'
+                className='pl-10 text-black bg-gray-50 border-gray-200'
               />
             </div>
           </div>
@@ -353,15 +339,15 @@ export default function MessagePage() {
                       </AvatarFallback>
                     </Avatar>
 
-                    {onlineUsers.includes(contact.user_id) && (
+                    {onlineUsers.includes(contact?.user_id) && (
                       <div className='absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full' />
                     )}
                   </div>
 
                   <div className='flex-1 min-w-0'>
                     <div className='flex justify-between text-sm'>
-                      <p className='font-medium truncate'>{contact?.name}</p>
-                      <span>{formatTime(contact.timestamp)}</span>
+                      <p className='font-medium truncate text-black'>{contact?.name || "N/A"}</p>
+                      <span className='text-gray-600'>{formatTime(contact.timestamp) || ""}</span>
                     </div>
                     <p className='text-gray-600 truncate text-sm mt-1'>
                       {contact?.last_message?.slice(0, 30)}
@@ -403,7 +389,7 @@ export default function MessagePage() {
                 </button>
 
                 <Avatar>
-                  <AvatarImage src={selectedContact.avatar} />
+                  <AvatarImage src={selectedContact?.avatar} />
                   <AvatarFallback>
                     {selectedContact?.name
                       ?.split(" ")
@@ -413,9 +399,9 @@ export default function MessagePage() {
                 </Avatar>
 
                 <div>
-                  <p className='font-medium'>{selectedContact?.name}</p>
-                  <p className='text-sm text-gray-500'>
-                    Last seen {formatTime(selectedContact.timestamp)}
+                  <p className='font-medium text-black'>{selectedContact?.name || "N/A"}</p>
+                  <p className='text-sm text-gray-700'>
+                    Last seen {formatTime(selectedContact?.timestamp)}
                   </p>
                 </div>
               </div>
@@ -460,20 +446,16 @@ export default function MessagePage() {
 
               {/* Input */}
               <div className='bg-white border-t pt-4 pl-4'>
-                <div className='flex items-center gap-2 relative'>
+                <div className='flex items-center gap-2 relative p-1'>
                   <Input
                     placeholder='Write your message...'
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className='pr-20 h-12 bg-gray-50 border-gray-200'
+                    className='pr-20 h-12 text-black bg-gray-50 border-gray-200'
                   />
 
                   <div className='absolute right-2 top-1/2 -translate-y-1/2 flex gap-2'>
-                    {/* <Button variant='ghost' size='icon'>
-                      <Mic className='h-4 w-4 text-gray-400' />
-                    </Button> */}
-
                     <Button
                       onClick={handleSendMessage}
                       size='icon'

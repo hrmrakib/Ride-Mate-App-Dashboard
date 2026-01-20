@@ -36,7 +36,7 @@ export default function EanringListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IWalletTransaction | null>(
-    null
+    null,
   );
   const itemsPerPage = 10;
 
@@ -49,7 +49,7 @@ export default function EanringListPage() {
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.contactNumber.includes(searchTerm)
+      user.contactNumber.includes(searchTerm),
   );
 
   // Calculate pagination
@@ -85,7 +85,7 @@ export default function EanringListPage() {
           currentPage,
           currentPage + 1,
           "...",
-          totalPages
+          totalPages,
         );
       }
     }
