@@ -66,15 +66,16 @@ export default function UserListPage() {
     },
     { skip: selectRole === "pending-request" },
   );
-  const { data: pendingUsersData } = usePendingUsersQuery(
-    {
-      role: selectSubRole,
-      page: currentPage,
-      limit,
-      search: debounceSearch,
-    },
-    { skip: selectRole !== "pending-request" },
-  );
+  const { data: pendingUsersData, refetch: pendingUsersRefetch } =
+    usePendingUsersQuery(
+      {
+        role: selectSubRole,
+        page: currentPage,
+        limit,
+        search: debounceSearch,
+      },
+      { skip: selectRole !== "pending-request" },
+    );
 
   const [deleteUserMutation, { isLoading: isDeleting }] =
     useDeleteUserMutation();
@@ -164,37 +165,54 @@ export default function UserListPage() {
     // { value: "all-users", label: "All Users" },
   ];
 
+  const getErrorMessage = (error: any) => {
+    return error?.data?.message || error?.error || error?.message;
+  };
+
   const handleAcceptConfirmation = async () => {
+    if (!selectedUser?.id) return;
+
     try {
       const res = await acceptUserMutation({
-        userId: selectedUser?.id ?? "",
+        userId: selectedUser.id,
         action: "approve",
       }).unwrap();
 
-      if (res?.success) {
-        toast.success("User accepted successfully!");
-        refetch();
-      }
+      console.log(res);
+
+      // if (res) {
+      toast.success("User accepted successfully!");
+      console.log("User accepted successfully log!");
+      setActionAcceptOpen(false);
+      pendingUsersRefetch();
+      // } else {
+      //   toast.error(res?.message || "Something went wrong!");
+      // }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Something went wrong!");
+      toast.error(getErrorMessage(error));
       console.error("Error accepting user:", error);
     }
   };
 
   const handleRejectConfirmation = async () => {
+    if (!selectedUser?.id) return;
+
     try {
       const res = await rejectUserMutation({
-        userId: selectedUser?.id ?? "",
+        userId: selectedUser.id,
         action: "reject",
       }).unwrap();
 
-      if (res?.success) {
-        toast.success("User rejected successfully!");
-        refetch();
-      }
+      // if (res) {
+      toast.success("User rejected successfully!");
+      setActionRejectOpen(false);
+      pendingUsersRefetch();
+      // } else {
+      //   toast.error(res?.message || "Something went wrong!");
+      // }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Something went wrong!");
-      console.error("Error accepting user:", error);
+      toast.error(getErrorMessage(error));
+      console.error("Error rejecting user:", error);
     }
   };
 
@@ -695,6 +713,7 @@ export default function UserListPage() {
               <Button
                 onClick={handleAcceptConfirmation}
                 className='bg-green-500!'
+                disabled={isAccepting}
               >
                 Yes, Accept
                 {isAccepting && (
@@ -725,7 +744,11 @@ export default function UserListPage() {
                 </Button>
               </DialogClose>
 
-              <Button variant='destructive' onClick={handleRejectConfirmation}>
+              <Button
+                variant='destructive'
+                onClick={handleRejectConfirmation}
+                disabled={isRejecting}
+              >
                 Yes, Reject
                 {isRejecting && (
                   <Loader2 className='ml-2 h-4 w-4 animate-spin' />
