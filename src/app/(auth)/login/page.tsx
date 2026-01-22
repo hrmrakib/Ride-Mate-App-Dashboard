@@ -11,6 +11,7 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { saveTokens } from "@/service/authService";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -66,6 +67,7 @@ export default function SignInPage() {
       if (res?.ok) {
         const data = await res.json();
         localStorage.setItem("access_token", data.access_token);
+        await saveTokens(data.access_token);
         router.push("/");
         console.log("Sign in response:", data);
       }

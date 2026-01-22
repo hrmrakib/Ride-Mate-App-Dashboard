@@ -26,19 +26,19 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
+import { logout } from "@/service/authService";
 
 export default function DashboardSidebar() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  console.log(pathname);
-
   const handleLogout = async () => {
-    console.log("first");
-    setIsLogoutModalOpen(true);
-    // await logout();
-    router.push("/login");
+    await logout();
+    setTimeout(() => {
+      setIsLogoutModalOpen(false);
+      router.push("/login");
+    }, 1000);
   };
 
   if (
@@ -126,7 +126,7 @@ export default function DashboardSidebar() {
 
           <SidebarFooter className='p-6'>
             <button
-              onClick={() => handleLogout()}
+              onClick={() => setIsLogoutModalOpen(true)}
               className='flex w-full items-center gap-3  px-4 py-3'
             >
               <svg
@@ -229,7 +229,7 @@ function NavItem({ href, icon: Icon, label, active = true }: NavItemProps) {
             "flex items-center gap-3 px-4 !py-5 transition-colors rounded-full",
             active
               ? "bg-sidebar-link-bg text-sidebar-active-color"
-              : "text-sidebar-color hover:bg-sidebar-link-bg hover:text-[#fff]"
+              : "text-sidebar-color hover:bg-sidebar-link-bg hover:text-[#fff]",
           )}
         >
           <Icon size={18} />

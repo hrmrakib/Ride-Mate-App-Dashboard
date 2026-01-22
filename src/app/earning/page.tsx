@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -33,30 +34,30 @@ const mockUsers = Array.from({ length: 60 }, (_, i) => ({
 
 export default function EanringListPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IWalletTransaction | null>(
     null,
   );
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const { data } = useGetTransactionsQuery({});
+  const { data } = useGetTransactionsQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+    search: searchTerm,
+  });
 
   const transactions = data?.data || [];
 
-  // Filter users based on search term
-  const filteredUsers = mockUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.contactNumber.includes(searchTerm),
-  );
+  const pagination = data?.meta?.pagination;
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+  const page = pagination?.page ?? 1;
+  const limit = pagination?.limit ?? 10;
+  const total = pagination?.total ?? 0;
+  const totalPages = pagination?.totalPages ?? 1;
+
+  const startIndex = total === 0 ? 0 : (page - 1) * limit + 1;
+  const endIndex = Math.min(page * limit, total);
 
   const handleActionClick = (user: IWalletTransaction) => {
     setSelectedUser(user);
@@ -65,28 +66,18 @@ export default function EanringListPage() {
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
 
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      if (currentPage <= 3) {
+      if (page <= 3) {
         pages.push(1, 2, 3, "...", totalPages);
-      } else if (currentPage >= totalPages - 2) {
+      } else if (page >= totalPages - 2) {
         pages.push(1, "...", totalPages - 2, totalPages - 1, totalPages);
       } else {
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages,
-        );
+        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
       }
     }
 
@@ -252,107 +243,134 @@ export default function EanringListPage() {
           </div>
 
           {/* Mobile Cards */}
+          {/* Mobile Cards */}
           <div className='md:hidden'>
             <div className='bg-[#012B5B] px-4 py-3'>
-              <h2 className='text-sm font-medium text-white'>User List</h2>
+              <h2 className='text-sm font-medium text-white'>
+                Transaction List
+              </h2>
             </div>
+
             <div className='divide-y divide-gray-200'>
-              {currentUsers.map((user) => (
-                <div key={user.id} className='p-4'>
-                  <div className='flex items-start gap-3'>
-                    <Avatar className='h-12 w-12'>
-                      <AvatarImage
-                        src={user.profileImage || "/placeholder.svg"}
-                        alt={user.name}
-                      />
-                      <AvatarFallback>
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className='flex-1 space-y-2'>
-                      <div className='flex items-center justify-between'>
-                        <h3 className='font-medium text-gray-900'>
-                          {user.name}
-                        </h3>
-                        <span className='text-xs text-gray-500'>
-                          {user.slNo}
-                        </span>
-                      </div>
-                      <div className='space-y-1 text-sm text-gray-600'>
-                        <p>{user.email}</p>
-                        <p>{user.contactNumber}</p>
-                      </div>
-                      <div className='flex items-center justify-between pt-2'>
-                        <Button
-                          variant='ghost'
-                          size='sm'
-                          className='h-8 w-8 p-0'
-                          // onClick={() => handleActionClick(user)}
-                        >
-                          <Info className='h-4 w-4 text-gray-400' />
-                        </Button>
+              {transactions.map((tx: IWalletTransaction) => {
+                const user = tx.data?.user;
+                const driver = tx.data?.driver;
+
+                return (
+                  <div key={tx.id} className='p-4'>
+                    <div className='flex items-start gap-3'>
+                      {/* Avatar */}
+                      <Avatar className='h-12 w-12'>
+                        <AvatarImage
+                          src={user?.avatar || "/placeholder.svg"}
+                          alt={user?.name || "User"}
+                        />
+                        <AvatarFallback>
+                          {user?.name
+                            ? user.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                            : "U"}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Content */}
+                      <div className='flex-1 space-y-2'>
+                        <div className='flex items-center justify-between'>
+                          <h3 className='font-medium text-gray-900'>
+                            {user?.name || "Unknown User"}
+                          </h3>
+                          <span className='text-xs text-gray-500'>
+                            {tx.created_at?.split("T")[0]}
+                          </span>
+                        </div>
+
+                        <div className='space-y-1 text-sm text-gray-600'>
+                          <p>
+                            <span className='font-medium'>Driver:</span>{" "}
+                            {driver?.name || "N/A"}
+                          </p>
+
+                          <p>
+                            <span className='font-medium'>Pickup:</span>{" "}
+                            {tx.data?.pickup_address || "N/A"}
+                          </p>
+
+                          <p>
+                            <span className='font-medium'>Drop:</span>{" "}
+                            {tx.data?.dropoff_address || "N/A"}
+                          </p>
+
+                          <p>
+                            <span className='font-medium'>Amount:</span>{" "}
+                            {tx.data?.total_cost ?? tx.amount} ৳
+                          </p>
+                        </div>
+
+                        <div className='flex items-center justify-between pt-2'>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='h-8 w-8 p-0'
+                            onClick={() => handleActionClick(tx)}
+                          >
+                            <Info className='h-4 w-4 text-gray-400' />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Pagination */}
-        <div className='mt-6 flex items-center justify-center gap-2'>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className='h-8 w-8 p-0'
-          >
-            <ChevronLeft className='h-4 w-4' />
-          </Button>
+        <Button
+          variant='ghost'
+          size='sm'
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          <ChevronLeft className='h-4 w-4' />
+        </Button>
 
-          {getPageNumbers().map((page, index) => (
-            <div key={index}>
-              {page === "..." ? (
-                <span className='px-2 text-gray-500'>...</span>
-              ) : (
-                <Button
-                  variant={currentPage === page ? "default" : "ghost"}
-                  size='sm'
-                  onClick={() => setCurrentPage(page as number)}
-                  className={`h-8 w-8 p-0 ${
-                    currentPage === page
-                      ? "bg-[#012B5B] text-white hover:bg-[#023b7c]"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </Button>
-              )}
-            </div>
-          ))}
+        {getPageNumbers().map((p, index) =>
+          p === "..." ? (
+            <span key={index} className='px-2 text-gray-500'>
+              ...
+            </span>
+          ) : (
+            <Button
+              key={p}
+              variant={page === p ? "default" : "ghost"}
+              size='sm'
+              onClick={() => setCurrentPage(p as number)}
+              className={
+                page === p
+                  ? "bg-[#012B5B] text-white hover:bg-[#023b7c]"
+                  : "hover:bg-gray-100"
+              }
+            >
+              {p}
+            </Button>
+          ),
+        )}
 
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() =>
-              setCurrentPage(Math.min(totalPages, currentPage + 1))
-            }
-            disabled={currentPage === totalPages}
-            className='h-8 w-8 p-0'
-          >
-            <ChevronRight className='h-4 w-4' />
-          </Button>
-        </div>
+        <Button
+          variant='ghost'
+          size='sm'
+          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          <ChevronRight className='h-4 w-4' />
+        </Button>
 
         {/* Results info */}
         <div className='mt-4 text-center text-sm text-gray-600'>
-          Showing {startIndex + 1} to {Math.min(endIndex, filteredUsers.length)}{" "}
-          of {filteredUsers.length} results
+          Showing {startIndex} to {endIndex} of {total} results
         </div>
 
         <Dialog open={actionModalOpen} onOpenChange={setActionModalOpen}>

@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
 import { Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useGetProfileQuery } from "@/redux/features/setting/settingAPI";
 import { IUSER } from "@/types";
 import Link from "next/link";
 
 const Header = () => {
-  const router = useRouter();
   const [admin, setAdmin] = useState<IUSER | null>(null);
   const pathname = usePathname();
 
@@ -48,10 +46,15 @@ const Header = () => {
               <span className='absolute -top-1 -right-1 h-3 w-3 bg-red-700 rounded-full'></span>
             </Link>
             <div className='flex items-center gap-3'>
-              <Avatar className='h-10 w-10'>
-                <AvatarImage src='/admin.jpeg' alt='Daissy' />
-                <AvatarFallback>D</AvatarFallback>
-              </Avatar>
+              {admin?.avatar && (
+                <Avatar className='h-10 w-10'>
+                  <AvatarImage
+                    src={process.env.NEXT_PUBLIC_IMAGE_URL! + admin?.avatar}
+                    alt='Daissy'
+                  />
+                  <AvatarFallback>D</AvatarFallback>
+                </Avatar>
+              )}
               <div className='hidden sm:block'>
                 <p className='text-base font-medium text-[#333338]'>
                   {admin?.name}

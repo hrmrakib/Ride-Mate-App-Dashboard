@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -25,9 +26,11 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
+  useAcceptUserMutation,
   useDeleteUserMutation,
   useGetUserByRoleQuery,
   usePendingUsersQuery,
+  useRejectUserMutation,
 } from "@/redux/features/user/userAPI";
 import { IUSER } from "@/types";
 import { toast } from "sonner";
@@ -40,6 +43,8 @@ import Link from "next/link";
 export default function UserListPage() {
   const [searchInput, setSearchInput] = useState("");
   const [debounceSearch, setDebounceSearch] = useState("");
+  const [actionAcceptOpen, setActionAcceptOpen] = useState(false);
+  const [actionRejectOpen, setActionRejectOpen] = useState(false);
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IUSER | null>(null);
@@ -47,6 +52,10 @@ export default function UserListPage() {
   const [selectSubRole, setSelectSubRole] = useState<string>("USER");
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 5;
+  const [acceptUserMutation, { isLoading: isAccepting }] =
+    useAcceptUserMutation();
+  const [rejectUserMutation, { isLoading: isRejecting }] =
+    useRejectUserMutation();
 
   const { data, isFetching, refetch } = useGetUserByRoleQuery(
     {
@@ -55,7 +64,7 @@ export default function UserListPage() {
       limit,
       search: debounceSearch,
     },
-    { skip: selectRole === "pending-request" }
+    { skip: selectRole === "pending-request" },
   );
   const { data: pendingUsersData } = usePendingUsersQuery(
     {
@@ -64,7 +73,7 @@ export default function UserListPage() {
       limit,
       search: debounceSearch,
     },
-    { skip: selectRole !== "pending-request" }
+    { skip: selectRole !== "pending-request" },
   );
 
   const [deleteUserMutation, { isLoading: isDeleting }] =
@@ -104,7 +113,6 @@ export default function UserListPage() {
   const handleUserDelete = async () => {
     const userId = selectedUser?.id ?? "";
     try {
-      await new Promise((resolve) => setTimeout(resolve, 700));
       const res = await deleteUserMutation({ userId }).unwrap();
 
       if (res?.success) {
@@ -141,7 +149,7 @@ export default function UserListPage() {
           currentPage,
           currentPage + 1,
           "...",
-          totalPages
+          totalPages,
         );
       }
     }
@@ -155,6 +163,40 @@ export default function UserListPage() {
     { value: "pending-request", label: "Pending Request" },
     // { value: "all-users", label: "All Users" },
   ];
+
+  const handleAcceptConfirmation = async () => {
+    try {
+      const res = await acceptUserMutation({
+        userId: selectedUser?.id ?? "",
+        action: "approve",
+      }).unwrap();
+
+      if (res?.success) {
+        toast.success("User accepted successfully!");
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
+      console.error("Error accepting user:", error);
+    }
+  };
+
+  const handleRejectConfirmation = async () => {
+    try {
+      const res = await rejectUserMutation({
+        userId: selectedUser?.id ?? "",
+        action: "reject",
+      }).unwrap();
+
+      if (res?.success) {
+        toast.success("User rejected successfully!");
+        refetch();
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
+      console.error("Error accepting user:", error);
+    }
+  };
 
   return (
     <div className='min-h-screen bg-transparent p-6'>
@@ -263,7 +305,7 @@ export default function UserListPage() {
                   <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
                     Joined
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-medium text-table-header-color'>
+                  <th className='px-6 py-4 text-center text-sm font-medium text-table-header-color'>
                     Action
                   </th>
                 </tr>
@@ -312,23 +354,52 @@ export default function UserListPage() {
                         {user.created_at.split("T")[0]}
                       </td>
                       <td className='px-6 py-4'>
-                        <div className='flex items-center justify-center gap-2'>
-                          <Link
-                            href={`/users/${user.id}`}
-                            className='inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100'
-                          >
-                            <Eye className='h-4 w-4 text-gray-400' />
-                          </Link>
+                        {selectRole === "pending-request" ? (
+                          <div className='flex items-center justify-center gap-2'>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-8 w-8 p-0'
+                              onClick={() => {
+                                setActionAcceptOpen(true);
+                                setSelectedUser(user);
+                              }}
+                              title='Accept request'
+                            >
+                              ✅
+                            </Button>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-8 w-8 p-0'
+                              onClick={() => {
+                                setActionRejectOpen(true);
+                                setSelectedUser(user);
+                              }}
+                              title='Reject request'
+                            >
+                              ❌
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className='flex items-center justify-center gap-2'>
+                            <Link
+                              href={`/users/${user.id}`}
+                              className='inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100'
+                            >
+                              <Eye className='h-4 w-4 text-gray-400' />
+                            </Link>
 
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className='h-8 w-8 p-0'
-                            onClick={() => handleActionClick(user)}
-                          >
-                            <Trash className='h-4 w-4 text-gray-400' />
-                          </Button>
-                        </div>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-8 w-8 p-0'
+                              onClick={() => handleActionClick(user)}
+                            >
+                              <Trash className='h-4 w-4 text-gray-400' />
+                            </Button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -342,8 +413,6 @@ export default function UserListPage() {
               </tbody>
             </table>
           </div>
-
-          {/* Mobile Cards */}
 
           {/* Mobile Cards */}
           <div className='md:hidden'>
@@ -487,6 +556,7 @@ export default function UserListPage() {
           Page {currentPage} of {totalPages} • Total {totalResults} users
         </div>
 
+        {/* detail modal */}
         <Dialog open={actionModalOpen} onOpenChange={setActionModalOpen}>
           <DialogContent className='sm:max-w-md'>
             <DialogHeader className='flex flex-row items-center justify-between space-y-0 pb-4'>
@@ -597,6 +667,69 @@ export default function UserListPage() {
               <Button variant='destructive' onClick={() => handleUserDelete()}>
                 Yes, Delete{" "}
                 {isDeleting ? <Loader2 className='animate-spin' /> : ""}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Accept Confirm Modal */}
+        <Dialog open={actionAcceptOpen} onOpenChange={setActionAcceptOpen}>
+          <DialogContent className='sm:max-w-[400px]'>
+            <DialogHeader>
+              <DialogTitle className='text-2xl text-[#345983]'>
+                Confirm Acceptance
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to <b>accept this item</b>? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant='outline' className='border! border-gray-500!'>
+                  Cancel
+                </Button>
+              </DialogClose>
+
+              <Button
+                onClick={handleAcceptConfirmation}
+                className='bg-green-500!'
+              >
+                Yes, Accept
+                {isAccepting && (
+                  <Loader2 className='ml-2 h-4 w-4 animate-spin' />
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Reject Confirm Modal */}
+        <Dialog open={actionRejectOpen} onOpenChange={setActionRejectOpen}>
+          <DialogContent className='sm:max-w-[400px]'>
+            <DialogHeader>
+              <DialogTitle className='text-2xl text-[#345983]'>
+                Confirm Rejection
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to <b>reject this item</b>? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant='outline' className='border! border-gray-500!'>
+                  Cancel
+                </Button>
+              </DialogClose>
+
+              <Button variant='destructive' onClick={handleRejectConfirmation}>
+                Yes, Reject
+                {isRejecting && (
+                  <Loader2 className='ml-2 h-4 w-4 animate-spin' />
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -37,6 +37,22 @@ const userAPI = baseAPI.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    acceptUser: builder.mutation<any, { userId: string; action: string }>({
+      query: ({ userId, action }) => ({
+        url: `/admin/users/pending-users`,
+        method: "POST",
+        body: { user_id: userId, action },
+      }),
+    }),
+
+    rejectUser: builder.mutation<any, { userId: string; action: string }>({
+      query: ({ userId, action }) => ({
+        url: `/admin/users/pending-users`,
+        method: "POST",
+        body: { user_id: userId, action },
+      }),
+    }),
   }),
 });
 
@@ -45,6 +61,8 @@ export const {
   useGetUserTripDetailsQuery,
   useDeleteUserMutation,
   usePendingUsersQuery,
+  useAcceptUserMutation,
+  useRejectUserMutation,
 } = userAPI;
 
 export default userAPI;
