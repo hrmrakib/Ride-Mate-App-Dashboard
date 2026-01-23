@@ -162,7 +162,6 @@ export default function UserListPage() {
     { value: "user", label: "Users" },
     { value: "driver", label: "Driver" },
     { value: "pending-request", label: "Pending Request" },
-    // { value: "all-users", label: "All Users" },
   ];
 
   const getErrorMessage = (error: any) => {
@@ -178,14 +177,10 @@ export default function UserListPage() {
         action: "approve",
       }).unwrap();
 
-      // if (res) {
       toast.success("User accepted successfully!");
       console.log("User accepted successfully log!");
       setActionAcceptOpen(false);
       pendingUsersRefetch();
-      // } else {
-      //   toast.error(res?.message || "Something went wrong!");
-      // }
     } catch (error: any) {
       toast.error(getErrorMessage(error));
       console.error("Error accepting user:", error);
@@ -201,13 +196,9 @@ export default function UserListPage() {
         action: "reject",
       }).unwrap();
 
-      // if (res) {
       toast.success("User rejected successfully!");
       setActionRejectOpen(false);
       pendingUsersRefetch();
-      // } else {
-      //   toast.error(res?.message || "Something went wrong!");
-      // }
     } catch (error: any) {
       toast.error(getErrorMessage(error));
       console.error("Error rejecting user:", error);
