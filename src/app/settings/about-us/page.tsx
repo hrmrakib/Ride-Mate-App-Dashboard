@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 // import { useGetTrustAndSafetyQuery } from "@/redux/feature/settingAPI";
-import { useEffect } from "react";
 
 export default function TrustAndSafetyPage() {
   // const {
@@ -43,7 +42,10 @@ export default function TrustAndSafetyPage() {
             </div>
 
             <div>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias error eligendi totam quasi fugit, recusandae ipsa necessitatibus molestias similique tempora, laudantium placeat harum quidem, maiores quo cum aliquam dignissimos architecto!
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias
+              error eligendi totam quasi fugit, recusandae ipsa necessitatibus
+              molestias similique tempora, laudantium placeat harum quidem,
+              maiores quo cum aliquam dignissimos architecto!
               {/* {trustAndSafety?.description ? (
                 <div
                   className='prose prose-sm max-w-none'

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -169,24 +171,6 @@ export default function MessagePage() {
     }
   }, [chat_id, inboxChats]);
 
-  // ✅ Always returns a valid path (never undefined)
-  const getRoleBasePath = () => {
-    const isAdmin = profile?.data?.is_admin;
-    const role = profile?.data?.role?.toLowerCase() || "";
-
-    if (isAdmin) return "/dashboard/message";
-
-    const map: Record<string, string> = {
-      artist: "/dashboard/artist/message",
-      agent: "/dashboard/agent/message",
-      organizer: "/dashboard/organizer/message",
-      venue: "/dashboard/venue/message",
-      user: "/dashboard/user/message",
-    };
-
-    return map[role] || "/dashboard/user/message";
-  };
-
   const handleSendMessage = () => {
     if (!messageInput.trim()) return;
     if (!socket || !chat_id) return;
@@ -346,8 +330,12 @@ export default function MessagePage() {
 
                   <div className='flex-1 min-w-0'>
                     <div className='flex justify-between text-sm'>
-                      <p className='font-medium truncate text-black'>{contact?.name || "N/A"}</p>
-                      <span className='text-gray-600'>{formatTime(contact.timestamp) || ""}</span>
+                      <p className='font-medium truncate text-black'>
+                        {contact?.name || "N/A"}
+                      </p>
+                      <span className='text-gray-600'>
+                        {formatTime(contact.timestamp) || ""}
+                      </span>
                     </div>
                     <p className='text-gray-600 truncate text-sm mt-1'>
                       {contact?.last_message?.slice(0, 30)}
@@ -399,7 +387,9 @@ export default function MessagePage() {
                 </Avatar>
 
                 <div>
-                  <p className='font-medium text-black'>{selectedContact?.name || "N/A"}</p>
+                  <p className='font-medium text-black'>
+                    {selectedContact?.name || "N/A"}
+                  </p>
                   <p className='text-sm text-gray-700'>
                     Last seen {formatTime(selectedContact?.timestamp)}
                   </p>

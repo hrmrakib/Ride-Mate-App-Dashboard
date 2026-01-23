@@ -1,23 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Calendar, MapPin, Phone, FileText, ArrowLeft } from "lucide-react";
+import { MapPin, Phone, FileText, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useGetUserTripDetailsQuery } from "@/redux/features/user/userAPI";
 import { useParams, useRouter } from "next/navigation";
 import { UserProfile } from "../user.type";
 import Link from "next/link";
-
-interface Trip {
-  id: number;
-  date: string;
-  pickupLocation: string;
-  pickupAddress: string;
-  dropoffLocation: string;
-  dropoffAddress: string;
-  distance: string;
-  price: string;
-}
 
 export interface TripRequest {
   id: string;
@@ -56,48 +45,7 @@ export default function ProfilePage() {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
-  const [trips] = useState<Trip[]>([
-    {
-      id: 1,
-      date: "02.10.2025",
-      pickupLocation: "Pizza Burge Main St, Maintown",
-      pickupAddress: "Main St, Maintown",
-      dropoffLocation: "456 Oak Ave, Sometown",
-      dropoffAddress: "Oak Ave, Sometown",
-      distance: "6.00 km",
-      price: "$147.80",
-    },
-    {
-      id: 2,
-      date: "02.10.2025",
-      pickupLocation: "Pizza Burge Main St, Maintown",
-      pickupAddress: "Main St, Maintown",
-      dropoffLocation: "456 Oak Ave, Sometown",
-      dropoffAddress: "Oak Ave, Sometown",
-      distance: "6.00 km",
-      price: "$147.80",
-    },
-    {
-      id: 3,
-      date: "02.10.2025",
-      pickupLocation: "Pizza Burge Main St, Maintown",
-      pickupAddress: "Main St, Maintown",
-      dropoffLocation: "456 Oak Ave, Sometown",
-      dropoffAddress: "Oak Ave, Sometown",
-      distance: "6.00 km",
-      price: "$147.80",
-    },
-    {
-      id: 4,
-      date: "02.10.2025",
-      pickupLocation: "Pizza Burge Main St, Maintown",
-      pickupAddress: "Main St, Maintown",
-      dropoffLocation: "456 Oak Ave, Sometown",
-      dropoffAddress: "Oak Ave, Sometown",
-      distance: "6.00 km",
-      price: "$147.80",
-    },
-  ]);
+
   const params = useParams();
 
   const { data } = useGetUserTripDetailsQuery({ userId: params.id as string });
@@ -264,68 +212,66 @@ export default function ProfilePage() {
             <h3 className='text-xl sm:text-2xl font-semibold text-gray-900'>
               Trip History
             </h3>
-            {/* <button
-              className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
-              aria-label='Filter trips'
-            >
-              <Calendar className='w-5 h-5 text-gray-600' />
-            </button> */}
           </div>
 
           {/* Trip List */}
           <div className='space-y-3'>
-            {tripHistory?.map((trip: TripRequest) => (
-              <Link
-                href={`/trip/${trip.id}`}
-                key={trip.id}
-                className='block bg-white rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer border border-gray-200'
-              >
-                <div className='grid grid-cols-1 sm:grid-cols-12 gap-4 items-start sm:items-center'>
-                  {/* Date */}
-                  <div className='sm:col-span-2'>
-                    <p className='text-sm text-gray-500 mb-1'>Date</p>
-                    <p className='font-medium text-gray-900'>{trip?.date}</p>
-                  </div>
+            {tripHistory?.length > 0 ? (
+              tripHistory?.map((trip: TripRequest) => (
+                <Link
+                  href={`/trip/${trip.id}`}
+                  key={trip.id}
+                  className='block bg-white rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer border border-gray-200'
+                >
+                  <div className='grid grid-cols-1 sm:grid-cols-12 gap-4 items-start sm:items-center'>
+                    {/* Date */}
+                    <div className='sm:col-span-2'>
+                      <p className='text-sm text-gray-500 mb-1'>Date</p>
+                      <p className='font-medium text-gray-900'>{trip?.date}</p>
+                    </div>
 
-                  {/* Pickup Location */}
-                  <div className='sm:col-span-3'>
-                    <div className='flex gap-2'>
-                      <MapPin className='w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5' />
-                      <div>
-                        <p className='text-sm text-gray-500 mb-1'>Pickup</p>
-                        <p className='font-medium text-gray-900 text-sm'>
-                          {trip?.pickup_address}
-                        </p>
+                    {/* Pickup Location */}
+                    <div className='sm:col-span-3'>
+                      <div className='flex gap-2'>
+                        <MapPin className='w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5' />
+                        <div>
+                          <p className='text-sm text-gray-500 mb-1'>Pickup</p>
+                          <p className='font-medium text-gray-900 text-sm'>
+                            {trip?.pickup_address}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Dropoff Location */}
-                  <div className='sm:col-span-3'>
-                    <div className='flex gap-2'>
-                      <MapPin className='w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5' />
-                      <div>
-                        <p className='text-sm text-gray-500 mb-1'>Dropoff</p>
-                        <p className='font-medium text-gray-900 text-sm'>
-                          {trip.dropoff_address}{" "}
-                          <span className='text-blue-600'>
-                            {/* ({trip.distance}) */}
-                          </span>
-                        </p>
+                    {/* Dropoff Location */}
+                    <div className='sm:col-span-3'>
+                      <div className='flex gap-2'>
+                        <MapPin className='w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5' />
+                        <div>
+                          <p className='text-sm text-gray-500 mb-1'>Dropoff</p>
+                          <p className='font-medium text-gray-900 text-sm'>
+                            {trip.dropoff_address}{" "}
+                            <span className='text-blue-600'>
+                              {/* ({trip.distance}) */}
+                            </span>
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Price */}
-                  <div className='sm:col-span-2 text-right'>
-                    <p className='text-sm text-gray-500 mb-1'>Amount</p>
-                    <p className='font-bold text-blue-600 text-lg'>
-                      ${trip?.total_cost}
-                    </p>
+                    {/* Price */}
+                    <div className='sm:col-span-2 text-right'>
+                      <p className='text-sm text-gray-500 mb-1'>Amount</p>
+                      <p className='font-bold text-blue-600 text-lg'>
+                        ${trip?.total_cost}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <div className='text-gray-600 text-center'>No trips found</div>
+            )}
           </div>
         </div>
       </main>

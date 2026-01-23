@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import type React from "react";
@@ -85,12 +86,6 @@ export default function PersonalInformationEditPage() {
 
   // if (isLoading) return <Loading />;
 
-  const displayImage =
-    imagePreview ||
-    (typeof profileImage === "string"
-      ? `${process.env.NEXT_PUBLIC_IMAGE_URL}${profileImage}`
-      : "/admin.jpg");
-
   return (
     <div className='flex min-h-screen bg-transparent'>
       <div className='flex-1 w-full'>
@@ -118,7 +113,7 @@ export default function PersonalInformationEditPage() {
                   >
                     <div className='w-32 h-32 rounded-full overflow-hidden relative'>
                       <Image
-                        src={'/admin.jpg'}
+                        src={"/admin.jpg"}
                         alt='Profile'
                         fill
                         className='object-cover'

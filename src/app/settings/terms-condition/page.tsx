@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import Quill from "quill";
-// @ts-ignore
 import "quill/dist/quill.snow.css";
 import { Button } from "@/components/ui/button";
 

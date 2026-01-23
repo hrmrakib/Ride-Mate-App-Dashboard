@@ -173,12 +173,10 @@ export default function UserListPage() {
     if (!selectedUser?.id) return;
 
     try {
-      const res = await acceptUserMutation({
+      await acceptUserMutation({
         userId: selectedUser.id,
         action: "approve",
       }).unwrap();
-
-      console.log(res);
 
       // if (res) {
       toast.success("User accepted successfully!");
@@ -198,7 +196,7 @@ export default function UserListPage() {
     if (!selectedUser?.id) return;
 
     try {
-      const res = await rejectUserMutation({
+      await rejectUserMutation({
         userId: selectedUser.id,
         action: "reject",
       }).unwrap();

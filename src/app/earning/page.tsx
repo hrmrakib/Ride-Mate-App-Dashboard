@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -15,22 +14,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { useGetTransactionsQuery } from "@/redux/features/transactions/transactionAPI";
 import { IWalletTransaction } from "@/types/earning/earning.types";
-
-// Mock data matching the design
-const mockUsers = Array.from({ length: 60 }, (_, i) => ({
-  id: i + 1,
-  slNo: "#BI00001",
-  name: "Hazel Janis",
-  email: "janis202@gmail.com",
-  contactNumber: "+626-445-4928",
-  status: "Active",
-  role: "Driver",
-  joined: "4-25-2025",
-  profileImage: "/user.jpg",
-  country: "Indonesia",
-  disableAccess: false,
-  deleteAccount: false,
-}));
 
 export default function EanringListPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -201,28 +184,28 @@ export default function EanringListPage() {
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
                       {user?.data?.user?.name || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
                       {user?.data?.driver?.name || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </td>
 
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
                       {user?.data?.pickup_address || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
                       {user?.data?.dropoff_address || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </td>
                     <td className='px-6 py-4 text-base text-table-color font-medium'>
                       {user?.data?.total_cost || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </td>
 
@@ -405,7 +388,7 @@ export default function EanringListPage() {
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
                       {selectedUser?.data?.user?.name || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
@@ -415,7 +398,7 @@ export default function EanringListPage() {
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
                       {selectedUser?.data?.user?.email || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
@@ -425,7 +408,7 @@ export default function EanringListPage() {
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
                       {selectedUser?.data?.driver?.name || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
@@ -435,7 +418,7 @@ export default function EanringListPage() {
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
                       {selectedUser?.data?.driver?.email || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
@@ -445,7 +428,7 @@ export default function EanringListPage() {
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
                       {selectedUser?.data?.total_cost || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
@@ -455,7 +438,7 @@ export default function EanringListPage() {
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
                       {selectedUser?.data?.status || (
-                        <span className='text-red-400'>N/A</span>
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
@@ -464,8 +447,10 @@ export default function EanringListPage() {
                       Time:
                     </Label>
                     <p className='text-[#3e3e41] text-base font-medium'>
-                      {secondsToReadable(Number(selectedUser?.data?.time)) || (
-                        <span className='text-red-400'>N/A</span>
+                      {secondsToReadable(Number(selectedUser?.data?.time)) ? (
+                        secondsToReadable(Number(selectedUser?.data?.time))
+                      ) : (
+                        <span className='text-gray-600'>N/A</span>
                       )}
                     </p>
                   </div>
