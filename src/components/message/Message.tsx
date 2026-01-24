@@ -14,6 +14,7 @@ import { useParams, useRouter } from "next/navigation";
 import {
   useGetInboxChatsQuery,
   useGetMessagesQuery,
+  useNewChatMutation,
 } from "@/redux/features/chat/chatAPI";
 import { TMessagesResponse } from "./interface";
 import dayjs from "dayjs";
@@ -76,6 +77,8 @@ export default function MessagePage() {
   const [page, setPage] = useState(1);
   const limit = 15;
 
+  const [newChatMutation] = useNewChatMutation();
+
   const { data: messagesResponse, refetch: refetchMessages } =
     useGetMessagesQuery<{
       data: TMessagesResponse;
@@ -84,7 +87,7 @@ export default function MessagePage() {
   const { data: inboxChats, refetch: inboxRefetch } = useGetInboxChatsQuery(
     {
       page: 1,
-      limit: 10,
+      limit: 1000,
       search: debouncedSearch,
       unread: activeTab,
     },
@@ -172,8 +175,12 @@ export default function MessagePage() {
   }, [chat_id, inboxChats]);
 
   const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
-    if (!socket || !chat_id) return;
+    // if (!messageInput.trim()) return;
+    // if (!socket || !chat_id) {
+    //   return;
+    // }
+
+    console.log({ socket, chat_id });
 
     const tempMessage: IMessage = {
       id: crypto.randomUUID(),
@@ -191,7 +198,7 @@ export default function MessagePage() {
 
     setMessages((prev) => [...prev, tempMessage]);
 
-    socket.emit("send_message", {
+    socket?.emit("message:send", {
       chat_id: String(chat_id),
       text: messageInput,
     });
@@ -216,8 +223,8 @@ export default function MessagePage() {
     //   }
     // };
 
-    const handler = (payload: any) => {
-      const message = JSON.parse(payload).data;
+    const handler = (message: any) => {
+      console.log("{{new:message}}", message);
 
       if (message.chat_id !== chat_id) return;
 
@@ -227,14 +234,23 @@ export default function MessagePage() {
       });
     };
 
-    socket.on("new_message", handler);
+    socket.on("message:new", handler);
 
     return () => {
-      socket.off("new_message", handler);
+      socket.off("message:new", handler);
     };
   }, [socket, chat_id, refetchMessages]);
 
   const handleSelectContact = async (contact: IChat) => {
+    let res;
+    if (contact?.user_id) {
+      res = await newChatMutation({
+        user_id: contact?.user_id,
+      }).unwrap();
+    }
+
+    console.log(contact, res);
+
     inboxRefetch(); // force refetch
 
     setSelectedContact(contact);
@@ -242,8 +258,7 @@ export default function MessagePage() {
       setIsMobileView(true);
     }
 
-    // router.push(`${getRoleBasePath()}/${contact.id}`);
-    router.push(`/messages/${contact.id}`);
+    router.push(`/messages/${res?.id}`);
   };
 
   const formatTime = (ts?: string) => {
@@ -253,7 +268,7 @@ export default function MessagePage() {
   };
 
   return (
-    <div className='bg-transparent flex flex-col h-[calc(100vh-190px)] m-6 rounded-xl!'>
+    <div className='bg-transparent flex flex-col h-[calc(100vh-185px)] m-6 rounded-xl!'>
       <div className='flex-1 flex overflow-hidden rounded-xl!'>
         <div
           className={`min-h-0 w-full sm:w-80 bg-white border-r border-gray-200 flex flex-col ${
@@ -436,7 +451,7 @@ export default function MessagePage() {
 
               {/* Input */}
               <div className='bg-white border-t pt-4 pl-4'>
-                <div className='flex items-center gap-2 relative p-1'>
+                <div className='flex items-center gap-2 relative p-1 pb-2!'>
                   <Input
                     placeholder='Write your message...'
                     value={messageInput}

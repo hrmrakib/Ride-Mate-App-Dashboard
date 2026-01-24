@@ -40,12 +40,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const socket_url = process.env.NEXT_PUBLIC_SOCKET_URL;
 
-    const newSocket = io(`${socket_url}/message`, {
+    const newSocket = io(socket_url, {
       withCredentials: true,
       transports: ["websocket", "polling"],
       reconnectionAttempts: Number.MAX_SAFE_INTEGER, //? infinite
       reconnectionDelay: 3_000, //? 3 seconds
       auth: { token }, //? 1st try
+      
       extraHeaders: {
         Authorization: `Bearer ${token}`, //? 2nd try
       },
@@ -71,7 +72,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     () => () => {
       socket?.disconnect();
     },
-    [socket]
+    [socket],
   );
 
   return (

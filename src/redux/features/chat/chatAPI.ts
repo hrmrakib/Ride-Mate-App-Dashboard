@@ -35,7 +35,7 @@ const chatAPI = baseAPI.injectEndpoints({
         if (unread) query.set("unread", unread.toString());
 
         return {
-          url: `/inbox?${query.toString()}`,
+          url: `/admin/inbox?${query.toString()}`,
         };
       },
     }),
@@ -50,5 +50,9 @@ const chatAPI = baseAPI.injectEndpoints({
   }),
 });
 
-export const { useGetMessagesQuery, useGetInboxChatsQuery, useNewChatMutation } = chatAPI;
+export const {
+  useGetMessagesQuery,
+  useGetInboxChatsQuery,
+  useNewChatMutation,
+} = chatAPI;
 export default chatAPI;
