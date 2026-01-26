@@ -5,7 +5,6 @@ import { useState, useRef, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useVerifyOTPMutation } from "@/redux/features/auth/authAPI";
@@ -103,7 +102,9 @@ export default function VerifyOTPContent() {
       setError("Invalid verification code. Please try again.");
       console.log(error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
@@ -129,83 +130,91 @@ export default function VerifyOTPContent() {
 
   return (
     <div className='min-h-screen bg-orange-50 flex items-center justify-center p-4'>
-      <div className='w-full max-w-md'>
-        <div className='bg-white rounded-2xl shadow-lg p-8 relative'>
-          {/* Back Button */}
-          <Link
-            href='/auth/forgot-password'
-            className='absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-full transition-colors'
-          >
-            <ArrowLeft className='w-5 h-5 text-gray-600' />
-          </Link>
-
-          {/* Logo */}
-          <div className='flex items-center justify-center text-center'>
-            <Image src='/logo.png' alt='Logo' width={200} height={200} />
-          </div>
-
-          {/* Header */}
-          <div className='text-center mb-8'>
-            <h1 className='text-2xl font-bold text-gray-900 mb-3'>
-              Verify Your Account
-            </h1>
-            <p className='text-gray-600 text-sm leading-relaxed'>
-              Please enter the 6-digit verification code we sent to your
-              registered email address.
-            </p>
-          </div>
-
-          {/* OTP Form */}
-          <form onSubmit={handleVerification} className='space-y-6'>
-            {/* OTP Input Fields */}
-            <div className='flex justify-center gap-3 mb-6'>
-              {otp.map((digit, index) => (
-                <Input
-                  key={index}
-                  ref={(el) => {
-                    inputRefs.current[index] = el;
-                  }}
-                  type='text'
-                  inputMode='numeric'
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleInputChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className='w-12! h-12! text-center text-black text-xl font-semibold border-2 rounded-full focus:border-orange-500 focus:ring-orange-500'
-                  placeholder='-'
-                />
-              ))}
-            </div>
-
-            {/* Error Message */}
-            {error && (
-              <p className='text-red-500 text-sm text-center'>{error}</p>
-            )}
-
-            {/* Verification Button */}
-            <Button
-              type='submit'
-              disabled={isLoading}
-              className='w-full button'
+      <div className='bg-[#F3F7FF] h-screen hidden flex-1 md:flex items-center justify-center'>
+        <div>
+          <Image
+            src='/auth-img.png'
+            alt='Logo'
+            width={600}
+            height={600}
+            className='mx-auto'
+          />
+        </div>
+      </div>
+      <div className='bg-[#E6ECF6] h-screen flex-1 flex items-center justify-center'>
+        <div className='w-full max-w-md'>
+          <div className='bg-white rounded-2xl shadow-lg p-8 relative'>
+            {/* Back Button */}
+            <button
+              onClick={() => router.back()}
+              className='absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-full transition-colors'
             >
-              {isLoading ? "Verifying..." : "Verification"}
-            </Button>
+              <ArrowLeft className='w-5 h-5 text-gray-600' />
+            </button>
 
-            {/* Resend Code */}
-            <div className='text-center'>
-              <span className='text-gray-600 text-sm'>
-                Don&apos;t received code?{" "}
-              </span>
-              <button
-                type='button'
-                onClick={handleResendCode}
-                disabled={isResending}
-                className='text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors disabled:opacity-50'
-              >
-                {isResending ? "Sending..." : "Resent Now"}
-              </button>
+            {/* Header */}
+            <div className='text-center mb-8'>
+              <h1 className='text-xl lg:text-2xl font-bold text-gray-900 mb-3'>
+                Verify Your Account
+              </h1>
+              <p className='text-gray-600 text-sm leading-relaxed'>
+                Please enter the 6-digit verification code we sent to your
+                registered email address.
+              </p>
             </div>
-          </form>
+
+            {/* OTP Form */}
+            <form onSubmit={handleVerification} className='space-y-6'>
+              {/* OTP Input Fields */}
+              <div className='flex justify-center gap-3 mb-6'>
+                {otp.map((digit, index) => (
+                  <Input
+                    key={index}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
+                    type='text'
+                    inputMode='numeric'
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleInputChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    className='w-12! h-12! text-center text-black text-xl font-semibold border-2 rounded-full focus:border-orange-500 focus:ring-orange-500'
+                    placeholder='-'
+                  />
+                ))}
+              </div>
+
+              {/* Error Message */}
+              {error && (
+                <p className='text-red-500 text-sm text-center'>{error}</p>
+              )}
+
+              {/* Verification Button */}
+              <Button
+                type='submit'
+                disabled={isLoading}
+                className='w-full button'
+              >
+                {isLoading ? "Verifying..." : "Verification"}
+              </Button>
+
+              {/* Resend Code */}
+              {/* <div className='text-center'>
+                <span className='text-gray-600 text-sm'>
+                  Don&apos;t received code?{" "}
+                </span>
+                <button
+                  type='button'
+                  onClick={handleResendCode}
+                  disabled={isResending}
+                  className='text-orange-500 text-sm font-medium hover:text-orange-600 transition-colors disabled:opacity-50'
+                >
+                  {isResending ? "Sending..." : "Resent Now"}
+                </button>
+              </div> */}
+            </form>
+          </div>
         </div>
       </div>
     </div>

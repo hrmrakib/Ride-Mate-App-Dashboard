@@ -63,6 +63,9 @@ export default function MessagePage() {
   const [activeTab, setActiveTab] = useState<boolean>(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [hasToken, setHasToken] = useState(false);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+
+  // const chat_id = activeChatId ?? routeChatId;
 
   useEffect(() => {
     setHasToken(!!localStorage?.getItem("access_token"));
@@ -242,23 +245,32 @@ export default function MessagePage() {
   }, [socket, chat_id, refetchMessages]);
 
   const handleSelectContact = async (contact: IChat) => {
-    let res;
-    if (contact?.user_id) {
-      res = await newChatMutation({
-        user_id: contact?.user_id,
-      }).unwrap();
-    }
-
-    console.log(contact, res);
-
-    inboxRefetch(); // force refetch
-
+    console.log("first", contact);
     setSelectedContact(contact);
-    if (window.innerWidth < 640) {
-      setIsMobileView(true);
-    }
+    // inboxRefetch(); // force refetch
 
-    router.push(`/messages/${res?.id}`);
+    let res;
+    try {
+      if (contact?.user_id) {
+        res = await newChatMutation({
+          user_id: contact?.user_id,
+        }).unwrap();
+      }
+
+      console.log(contact, res);
+
+      if (window.innerWidth < 640) {
+        setIsMobileView(true);
+      }
+
+      console.log("last", contact);
+
+      if (res?.id) {
+        // router.push(`/messages/${res?.id}`);
+      }
+    } catch (error) {
+      console.error("Failed to open chat", error);
+    }
   };
 
   const formatTime = (ts?: string) => {

@@ -54,9 +54,9 @@ export default function ProfileInfo() {
         formData.append("avatar", uploadAvatar);
       }
 
-      const res = await updateProfileMutation(formData).unwrap();
+      await updateProfileMutation(formData).unwrap();
 
-      console.log(res);
+      toast.success("Changes saved successfully");
 
       // toast("Changes saved successfully");
     } catch (error: any) {

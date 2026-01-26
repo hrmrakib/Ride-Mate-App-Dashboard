@@ -12,6 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { saveTokens } from "@/service/authService";
+import { toast } from "sonner";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -70,136 +71,130 @@ export default function SignInPage() {
         await saveTokens(data.access_token);
         router.push("/");
         console.log("Sign in response:", data);
+      } else {
+        const data = await res.json();
+        console.log(data[0]?.message);
+        toast.error(data[0]?.message);
       }
     } catch (error) {
       console.error("Sign in error:", error);
     } finally {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
   return (
     <div className='min-h-screen bg-orange-50 flex items-center justify-center'>
-      <Card className='w-full max-w-xl bg-white shadow-lg border-0'>
-        <CardContent className='pb-6'>
-          {/* Logo */}
-          <div className='flex items-center justify-center text-center'>
-            <Image src='/logo.png' alt='Logo' width={200} height={200} />
-          </div>
+      <div className='bg-[#F3F7FF] h-screen hidden flex-1 md:flex items-center justify-center'>
+        <div>
+          <Image
+            src='/auth-img.png'
+            alt='Logo'
+            width={600}
+            height={600}
+            className='mx-auto'
+          />
+        </div>
+      </div>
 
-          {/* Header */}
-          <div className='text-center mb-8'>
-            <h1 className='text-2xl font-bold text-gray-900 mb-2'>Login in</h1>
-            <p className='text-gray-600 text-sm leading-relaxed'>
-              Enter your email address and password to access your account.
-            </p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className='space-y-6'>
-            {/* Email Address */}
-            <div className='space-y-2'>
-              <Label htmlFor='email' className='text-gray-700 font-medium'>
-                Email Address
-              </Label>
-              <div className='relative'>
-                <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
-                <Input
-                  id='email'
-                  name='email'
-                  type='email'
-                  placeholder='Enter your email'
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`pl-10 h-12! bg-gray-50 border-gray-200 focus:bg-white ${
-                    errors.email ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-              {errors.email && (
-                <p className='text-red-500 text-sm'>{errors.email}</p>
-              )}
+      <div className='bg-[#E6ECF6] h-screen flex-1 flex items-center justify-center'>
+        <Card className='w-full max-w-xl bg-white shadow-lg border-0 m-5'>
+          <CardContent className='pb-6'>
+            {/* Header */}
+            <div className='text-center mb-8'>
+              <h1 className='text-2xl lg:text-4xl font-bold text-gray-900 mb-2'>
+                Login
+              </h1>
+              <p className='text-gray-600 text-sm leading-relaxed'>
+                Enter your email address and password to access your account.
+              </p>
             </div>
 
-            {/* Password */}
-            <div className='space-y-2'>
-              <Label htmlFor='password' className='text-gray-700 font-medium'>
-                Password
-              </Label>
-              <div className='relative'>
-                <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
-                <Input
-                  id='password'
-                  name='password'
-                  type={showPassword ? "text" : "password"}
-                  placeholder='Min 8 character'
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`pl-10 pr-10 h-12! bg-gray-50 border-gray-200 focus:bg-white ${
-                    errors.password ? "border-red-500" : ""
-                  }`}
-                />
-                <button
-                  type='button'
-                  onClick={() => setShowPassword(!showPassword)}
-                  className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
-                >
-                  {showPassword ? (
-                    <EyeOff className='h-4 w-4' />
-                  ) : (
-                    <Eye className='h-4 w-4' />
-                  )}
-                </button>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className='space-y-6'>
+              {/* Email Address */}
+              <div className='space-y-2'>
+                <Label htmlFor='email' className='text-gray-700 font-medium'>
+                  Email Address
+                </Label>
+                <div className='relative'>
+                  <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+                  <Input
+                    id='email'
+                    name='email'
+                    type='email'
+                    placeholder='Enter your email'
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`pl-10 h-12! bg-gray-50 border-gray-200 focus:bg-white ${
+                      errors.email ? "border-red-500" : ""
+                    }`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className='text-red-500 text-sm'>{errors.email}</p>
+                )}
               </div>
-              {errors.password && (
-                <p className='text-red-500 text-sm'>{errors.password}</p>
-              )}
-            </div>
 
-            {/* Forgot Password Link */}
-            <div className='text-right'>
-              <Link
-                href='/forgot-password'
-                className='text-[#333333] text-sm hover:text-[#012B5B] transition-colors'
-              >
-                Forgot password?
-              </Link>
-            </div>
-
-            {/* Sign In Button */}
-            <Button
-              type='submit'
-              disabled={isLoading}
-              className='w-full button'
-            >
-              {isLoading ? "Signing In..." : "Sign in"}
-            </Button>
-
-            {/* Divider */}
-            {/* <div className='relative my-6'>
-              <div className='absolute inset-0 flex items-center'>
-                <div className='w-full border-t border-gray-200' />
+              {/* Password */}
+              <div className='space-y-2'>
+                <Label htmlFor='password' className='text-gray-700 font-medium'>
+                  Password
+                </Label>
+                <div className='relative'>
+                  <Lock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+                  <Input
+                    id='password'
+                    name='password'
+                    type={showPassword ? "text" : "password"}
+                    placeholder='Min 8 character'
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`pl-10 pr-10 h-12! bg-gray-50 border-gray-200 focus:bg-white ${
+                      errors.password ? "border-red-500" : ""
+                    }`}
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setShowPassword(!showPassword)}
+                    className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
+                  >
+                    {showPassword ? (
+                      <EyeOff className='h-4 w-4' />
+                    ) : (
+                      <Eye className='h-4 w-4' />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className='text-red-500 text-sm'>{errors.password}</p>
+                )}
               </div>
-              <div className='relative flex justify-center text-sm'>
-                <span className='px-4 bg-white text-gray-500'>Or</span>
-              </div>
-            </div> */}
 
-            {/* Sign Up Link */}
-            {/* <div className='text-center'>
-              <span className='text-gray-600 text-sm'>
-                Don&apos;t have an account?{" "}
+              {/* Forgot Password Link */}
+              <div className='text-right'>
                 <Link
-                  href='/auth/signup'
-                  className='text-[#333333] hover:text-[#012B5B] font-medium transition-colors'
+                  href='/forgot-password'
+                  className='text-[#333333] text-sm hover:text-[#012B5B] transition-colors'
                 >
-                  Sign up
+                  Forgot password?
                 </Link>
-              </span>
-            </div> */}
-          </form>
-        </CardContent>
-      </Card>
+              </div>
+
+              {/* Sign In Button */}
+              <Button
+                type='submit'
+                disabled={isLoading}
+                className='w-full button'
+              >
+                {isLoading ? "Signing In..." : "Sign in"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
