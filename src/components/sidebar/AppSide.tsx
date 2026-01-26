@@ -3,7 +3,14 @@
 import type React from "react";
 
 import Link from "next/link";
-import { LayoutDashboard, Users, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  DollarSign,
+  Bell,
+  MessageCircleMore,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sidebar,
@@ -87,7 +94,7 @@ export default function DashboardSidebar() {
 
               <NavItem
                 href='/earning'
-                icon={Settings}
+                icon={DollarSign}
                 label='Earning'
                 active={
                   pathname === "/earning" || pathname.startsWith("/earning/")
@@ -96,7 +103,7 @@ export default function DashboardSidebar() {
 
               <NavItem
                 href='/notification'
-                icon={Settings}
+                icon={Bell}
                 label='Notification'
                 active={
                   pathname === "/notification" ||
@@ -106,7 +113,7 @@ export default function DashboardSidebar() {
 
               <NavItem
                 href='/messages'
-                icon={Settings}
+                icon={MessageCircleMore}
                 label='Messages'
                 active={
                   pathname === "/messages" || pathname.startsWith("/messages/")
