@@ -45,7 +45,7 @@ interface IMessage {
   media_urls: string[];
   isDeleted: boolean;
   seen_by: string[];
-  isOwner: boolean;
+  is_mine?: boolean;
 }
 
 export default function MessagePage() {
@@ -55,7 +55,7 @@ export default function MessagePage() {
   });
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const { socket, onlineUsers } = useSocket();
-  const { id: chat_id } = useParams<{ id: string }>();
+  const { id: routeChatId } = useParams<{ id: string }>();
   const router = useRouter();
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedContact, setSelectedContact] = useState<IChat | null>(null);
@@ -65,7 +65,7 @@ export default function MessagePage() {
   const [hasToken, setHasToken] = useState(false);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
-  // const chat_id = activeChatId ?? routeChatId;
+  const chat_id = activeChatId ?? routeChatId;
 
   useEffect(() => {
     setHasToken(!!localStorage?.getItem("access_token"));
@@ -96,6 +96,8 @@ export default function MessagePage() {
     },
     { skip: false },
   );
+
+  console.log({ messagesResponse, chat_id });
 
   const messagesData = messagesResponse?.data || [];
   const totalPages = messagesResponse?.meta?.pagination?.totalPages;
@@ -196,7 +198,7 @@ export default function MessagePage() {
       media_urls: [],
       isDeleted: false,
       seen_by: [],
-      isOwner: true,
+      is_mine: true,
     };
 
     setMessages((prev) => [...prev, tempMessage]);
@@ -219,13 +221,6 @@ export default function MessagePage() {
   useEffect(() => {
     if (!socket) return;
 
-    // const handler = (payload: any) => {
-    //   const message = JSON.parse(payload).data;
-    //   if (message.chat_id === chat_id) {
-    //     refetchMessages();
-    //   }
-    // };
-
     const handler = (message: any) => {
       console.log("{{new:message}}", message);
 
@@ -245,7 +240,6 @@ export default function MessagePage() {
   }, [socket, chat_id, refetchMessages]);
 
   const handleSelectContact = async (contact: IChat) => {
-    console.log("first", contact);
     setSelectedContact(contact);
     // inboxRefetch(); // force refetch
 
@@ -263,10 +257,10 @@ export default function MessagePage() {
         setIsMobileView(true);
       }
 
-      console.log("last", contact);
-
       if (res?.id) {
-        // router.push(`/messages/${res?.id}`);
+        setMessages([]);
+        setPage(1);
+        setActiveChatId(res.id);
       }
     } catch (error) {
       console.error("Failed to open chat", error);
@@ -429,12 +423,12 @@ export default function MessagePage() {
                   <div
                     key={msg.id}
                     className={`flex ${
-                      msg.isOwner ? "justify-end" : "justify-start"
+                      msg.is_mine ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-md px-4 py-2 rounded-lg ${
-                        msg.isOwner
+                        msg.is_mine
                           ? "bg-[#235789] text-white"
                           : "bg-gray-100 text-gray-900"
                       }`}
@@ -442,11 +436,11 @@ export default function MessagePage() {
                       <p className='text-sm'>{msg.text}</p>
                       <div
                         className={`flex items-center gap-1 mt-1 text-xs ${
-                          msg.isOwner ? "justify-end" : "justify-start"
+                          msg.is_mine ? "justify-end" : "justify-start"
                         }`}
                       >
                         {dayjs(msg.updated_at || msg.created_at).fromNow()}
-                        {msg.isOwner && msg.seen_by.length > 1 && (
+                        {msg.is_mine && msg.seen_by.length > 1 && (
                           <CheckCheck className='text-blue-200' />
                         )}
                       </div>
