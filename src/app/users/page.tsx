@@ -178,7 +178,6 @@ export default function UserListPage() {
       }).unwrap();
 
       toast.success("User accepted successfully!");
-      console.log("User accepted successfully log!");
       setActionAcceptOpen(false);
       pendingUsersRefetch();
     } catch (error: any) {

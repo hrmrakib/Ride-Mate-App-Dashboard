@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
@@ -91,8 +93,6 @@ export default function VerifyOTPContent() {
         otp: otpCode,
       }).unwrap();
 
-      console.log(res);
-
       if (res?.reset_token) {
         localStorage.setItem("access_token", res?.reset_token);
         toast.success("OTP verification successfully!");
@@ -100,7 +100,6 @@ export default function VerifyOTPContent() {
       }
     } catch (error) {
       setError("Invalid verification code. Please try again.");
-      console.log(error);
     } finally {
       setTimeout(() => {
         setIsLoading(false);
@@ -115,14 +114,12 @@ export default function VerifyOTPContent() {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("[v0] Resend OTP requested");
 
       // Clear current OTP and focus first input
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-    } catch (error) {
+    } catch (error: any) {
       setError("Failed to resend code. Please try again.");
-      console.log(error);
     } finally {
       setIsResending(false);
     }

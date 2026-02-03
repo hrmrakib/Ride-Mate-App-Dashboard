@@ -29,10 +29,8 @@ export default function NotificationsPage() {
   const notifications = data?.data;
 
   const unreadCount = notifications?.filter(
-    (noti: any) => noti.unread === false
+    (noti: any) => noti.unread === false,
   );
-
-  console.log(unreadCount);
 
   const handleToggleRead = async (id: string, unread: boolean) => {
     // console.log(id, unread);
@@ -48,8 +46,6 @@ export default function NotificationsPage() {
         activity_id: id,
         unread: !unread,
       }).unwrap();
-
-      console.log(res);
 
       if (res?.count) {
         refetch();
@@ -92,8 +88,6 @@ export default function NotificationsPage() {
   const handleMarkAllAsRead = async () => {
     try {
       const res = await deleteNotificationMutation({}).unwrap();
-
-      console.log(res);
 
       if (res?.count) {
         refetch();
@@ -207,7 +201,7 @@ export default function NotificationsPage() {
                           onClick={() =>
                             handleToggleRead(
                               notification.id,
-                              notification.unread
+                              notification.unread,
                             )
                           }
                           title={

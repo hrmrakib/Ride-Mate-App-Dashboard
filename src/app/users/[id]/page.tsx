@@ -52,7 +52,6 @@ export default function ProfilePage() {
 
   const currentUser: UserProfile = data?.meta?.currentUser;
   const tripHistory = data?.data;
-  console.log(tripHistory);
 
   const getImageSrc = (path?: string) => {
     if (!path) return null;

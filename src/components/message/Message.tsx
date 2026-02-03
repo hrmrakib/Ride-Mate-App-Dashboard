@@ -87,6 +87,13 @@ export default function MessagePage() {
       data: TMessagesResponse;
     }>({ page, limit, chat_id, search: undefined }, { skip: !chat_id });
 
+  // ? temp added
+  // useEffect(() => {
+  //   if (messagesResponse?.data?.length) {
+  //     setMessages((prev) => [...prev, ...messagesResponse?.data]);
+  //   }
+  // }, [messagesResponse?.data]);
+
   const { data: inboxChats, refetch: inboxRefetch } = useGetInboxChatsQuery(
     {
       page: 1,
@@ -96,8 +103,6 @@ export default function MessagePage() {
     },
     { skip: false },
   );
-
-  console.log({ messagesResponse, chat_id });
 
   const messagesData = messagesResponse?.data || [];
   const totalPages = messagesResponse?.meta?.pagination?.totalPages;
@@ -185,8 +190,6 @@ export default function MessagePage() {
     //   return;
     // }
 
-    console.log({ socket, chat_id });
-
     const tempMessage: IMessage = {
       id: crypto.randomUUID(),
       chat_id: String(chat_id),
@@ -222,8 +225,6 @@ export default function MessagePage() {
     if (!socket) return;
 
     const handler = (message: any) => {
-      console.log("{{new:message}}", message);
-
       if (message.chat_id !== chat_id) return;
 
       setMessages((prev) => {
@@ -250,8 +251,6 @@ export default function MessagePage() {
           user_id: contact?.user_id,
         }).unwrap();
       }
-
-      console.log(contact, res);
 
       if (window.innerWidth < 640) {
         setIsMobileView(true);

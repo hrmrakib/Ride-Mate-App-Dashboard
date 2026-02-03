@@ -45,8 +45,6 @@ export default function ForgotPasswordPage() {
       setTimeout(() => {
         router.push(`/verify-otp?email=${email}`);
       }, 1000);
-
-      console.log("forget-password res");
     } catch (error) {
       console.error("Error sending reset email:", error);
       setErrors({ email: "Failed to send reset email. Please try again." });

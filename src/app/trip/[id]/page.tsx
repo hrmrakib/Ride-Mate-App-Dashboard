@@ -59,8 +59,6 @@ export default function DeliveryTracking() {
   const onTheWayLocation = tripData?.location_address;
   const dropoffLocation = tripData?.dropoff_address;
 
-  console.log(data);
-
   const handleZoomIn = () => setMapZoom((prev) => Math.min(prev + 20, 200));
   const handleZoomOut = () => setMapZoom((prev) => Math.max(prev - 20, 60));
 

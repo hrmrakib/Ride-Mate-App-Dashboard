@@ -39,7 +39,6 @@ export default function ChangePassword() {
         newPassword: newPassword,
       });
 
-      console.log(res);
       toast.success("Password updated successfully!");
     } catch (error: any) {
       toast.error(error?.data?.message || "Something went wrong!");

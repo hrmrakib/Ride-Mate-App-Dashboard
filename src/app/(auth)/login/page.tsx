@@ -70,10 +70,8 @@ export default function SignInPage() {
         localStorage.setItem("access_token", data.access_token);
         await saveTokens(data.access_token);
         router.push("/");
-        console.log("Sign in response:", data);
       } else {
         const data = await res.json();
-        console.log(data[0]?.message);
         toast.error(data[0]?.message);
       }
     } catch (error) {

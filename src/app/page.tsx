@@ -35,11 +35,7 @@ const StatCard = ({
 export default function Dashboard() {
   const { data } = useFetchOverviewDataQuery({});
 
-  console.log(data);
-
   const overview = data?.graph;
-
-  console.log(overview);
 
   return (
     <div className='bg-transparent p-6'>
