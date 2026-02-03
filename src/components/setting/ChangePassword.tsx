@@ -34,7 +34,7 @@ export default function ChangePassword() {
     }
 
     try {
-      const res = await updatePasswordMutation({
+      await updatePasswordMutation({
         oldPassword: currentPassword,
         newPassword: newPassword,
       });
