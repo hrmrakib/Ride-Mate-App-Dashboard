@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.getavails.com",
+        hostname: "api.radeefz.com",
       },
       {
         protocol: "http",
