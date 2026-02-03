@@ -362,6 +362,12 @@ export default function UserListPage() {
                       <td className='px-6 py-4'>
                         {selectRole === "pending-request" ? (
                           <div className='flex items-center justify-center gap-2'>
+                            <Link
+                              href={`/users/${user.id}`}
+                              className='inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100'
+                            >
+                              <Eye className='h-4 w-4 text-gray-400' />
+                            </Link>
                             <Button
                               variant='ghost'
                               size='sm'

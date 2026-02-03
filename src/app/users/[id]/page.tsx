@@ -48,17 +48,32 @@ export default function ProfilePage() {
 
   const params = useParams();
 
-  const { data } = useGetUserTripDetailsQuery({ userId: params.id as string });
+  const { data, isLoading } = useGetUserTripDetailsQuery({
+    userId: params.id as string,
+  });
 
   const currentUser: UserProfile = data?.meta?.currentUser;
   const tripHistory = data?.data;
 
+  if (isLoading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-white'>
+        <div className='flex flex-col items-center gap-4'>
+          <div className='w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin' />
+          <p className='text-gray-600 text-sm'>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   const getImageSrc = (path?: string) => {
     if (!path) return null;
 
-    if (path.startsWith("http")) return path;
+    // if (path.startsWith("http")) return path;
     return process.env.NEXT_PUBLIC_IMAGE_URL + path;
   };
+
+  console.log({ currentUser });
 
   return (
     <div className='min-h-screen bg-white m-6 rounded-xl'>
@@ -113,51 +128,58 @@ export default function ProfilePage() {
               <span>Phone Number: {currentUser?.phone || "N/A"}</span>
             </div>
             <div className='flex items-center gap-2 flex-wrap'>
-              <div className='flex items-center gap-2'>
-                <FileText className='w-4 h-4 text-gray-500' />
-                <span className='flex items-center gap-4'>
-                  Driving Liecense:{" "}
-                  <Image
-                    src={getImageSrc(currentUser?.driving_license_photos[0])!}
-                    alt='Driving License'
-                    className='cursor-pointer rounded border hover:scale-105 transition'
-                    width={48}
-                    height={48}
-                    onClick={() => {
-                      const images = currentUser?.driving_license_photos
-                        ?.map(getImageSrc)
-                        .filter(Boolean) as string[];
+              {currentUser?.role === "DRIVER" && (
+                <div className='flex items-center gap-2'>
+                  <FileText className='w-4 h-4 text-gray-500' />
+                  <span className='flex items-center gap-4'>
+                    Driving Liecense:{" "}
+                    <Image
+                      src={getImageSrc(currentUser?.driving_license_photos[0])!}
+                      alt='Driving License'
+                      className='cursor-pointer rounded border hover:scale-105 transition'
+                      width={48}
+                      height={48}
+                      onClick={() => {
+                        const images = currentUser?.driving_license_photos
+                          ?.map(getImageSrc)
+                          .filter(Boolean) as string[];
 
-                      setPreviewImages(images || []);
-                      setCurrentIndex(0);
-                    }}
-                  />
-                </span>
-              </div>
+                        setPreviewImages(images || []);
+                        setCurrentIndex(0);
+                      }}
+                    />
+                  </span>
+                </div>
+              )}
 
-              <div className='flex items-center gap-2'>
-                <FileText className='w-4 h-4 text-gray-500' />
-                <span className='flex items-center gap-4'>
-                  Vehicle Registration:{" "}
-                  <Image
-                    src={
-                      getImageSrc(currentUser?.vehicle_registration_photos[0])!
-                    }
-                    alt='Vehicle Registration'
-                    width={48}
-                    height={48}
-                    className='cursor-pointer rounded border hover:scale-105 transition'
-                    onClick={() => {
-                      const images = currentUser?.vehicle_registration_photos
-                        ?.map(getImageSrc)
-                        .filter(Boolean) as string[];
+              {currentUser?.role === "DRIVER" && (
+                <div className='flex items-center gap-2'>
+                  <FileText className='w-4 h-4 text-gray-500' />
+                  <span className='flex items-center gap-4'>
+                    Vehicle Registration:{" "}
+                    <Image
+                      src={
+                        getImageSrc(
+                          currentUser?.vehicle_registration_photos[0],
+                        )!
+                      }
+                      alt='Vehicle Registration'
+                      width={48}
+                      height={48}
+                      className='cursor-pointer rounded border hover:scale-105 transition'
+                      onClick={() => {
+                        const images = currentUser?.vehicle_registration_photos
+                          ?.map(getImageSrc)
+                          .filter(Boolean) as string[];
 
-                      setPreviewImages(images);
-                      setCurrentIndex(0);
-                    }}
-                  />
-                </span>
-              </div>
+                        setPreviewImages(images);
+                        setCurrentIndex(0);
+                      }}
+                    />
+                  </span>
+                </div>
+              )}
+
               <div className='flex items-center gap-2'>
                 <FileText className='w-4 h-4 text-gray-500' />
                 <span className='flex items-center gap-4'>
