@@ -205,25 +205,30 @@ export default function ProfilePage() {
           </div>
 
           {/* Stats Cards */}
-          <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <div className='bg-gray-100 rounded-lg p-6 hover:bg-gray-200 transition-colors'>
               <p className='text-3xl sm:text-4xl font-bold text-gray-900 mb-2'>
-                10
+                {currentUser?.role === "DRIVER"
+                  ? currentUser?.trip_given_count
+                  : currentUser?.trip_received_count || 0}
               </p>
               <p className='text-gray-600 text-sm sm:text-base'>Total Trip</p>
             </div>
-            <div className='bg-gray-100 rounded-lg p-6 hover:bg-gray-200 transition-colors'>
+            <div
+              title={`Total Rating : ${currentUser?.rating_count || 0}`}
+              className='bg-gray-100 rounded-lg p-6 hover:bg-gray-200 transition-colors'
+            >
               <p className='text-3xl sm:text-4xl font-bold text-gray-900 mb-2'>
                 {currentUser?.rating}
               </p>
               <p className='text-gray-600 text-sm sm:text-base'>Ratings</p>
             </div>
-            <div className='bg-gray-100 rounded-lg p-6 hover:bg-gray-200 transition-colors'>
+            {/* <div className='bg-gray-100 rounded-lg p-6 hover:bg-gray-200 transition-colors'>
               <p className='text-3xl sm:text-4xl font-bold text-gray-900 mb-2'>
                 200
               </p>
               <p className='text-gray-600 text-sm sm:text-base'>Day Streak</p>
-            </div>
+            </div> */}
           </div>
         </div>
 
