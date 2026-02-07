@@ -13,9 +13,9 @@ const userAPI = baseAPI.injectEndpoints({
       }),
     }),
 
-    getUserTripDetails: builder.query<any, { userId: string }>({
-      query: ({ userId }) => ({
-        url: `/admin/user-trip-details?user_id=${userId}`,
+    getUserTripDetails: builder.query<any, { userId: string; tab?: string }>({
+      query: ({ userId, tab }) => ({
+        url: `/admin/user-trip-details?user_id=${userId}&tab=${tab}`,
         method: "GET",
       }),
     }),

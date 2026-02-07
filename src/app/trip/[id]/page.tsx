@@ -86,7 +86,7 @@ export default function DeliveryTracking() {
               <ArrowLeft className='w-6 h-6 text-slate-700' />
             </button>
             <h1 className='text-2xl sm:text-3xl font-bold text-slate-900'>
-              Sophia
+              Trip Details
             </h1>
           </div>
         </div>

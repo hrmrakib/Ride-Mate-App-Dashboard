@@ -44,18 +44,20 @@ export interface TripRequest {
 export default function ProfilePage() {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [tab, setTab] = useState<"Trips" | "Parcels">("Trips");
   const router = useRouter();
 
   const params = useParams();
 
-  const { data, isLoading } = useGetUserTripDetailsQuery({
+  const { data, isFetching } = useGetUserTripDetailsQuery({
     userId: params.id as string,
+    tab,
   });
 
   const currentUser: UserProfile = data?.meta?.currentUser;
   const tripHistory = data?.data;
 
-  if (isLoading) {
+  if (isFetching) {
     return (
       <div className='min-h-screen flex items-center justify-center bg-white'>
         <div className='flex flex-col items-center gap-4'>
@@ -73,7 +75,31 @@ export default function ProfilePage() {
     return process.env.NEXT_PUBLIC_IMAGE_URL + path;
   };
 
-  console.log({ currentUser });
+  const getStatusColor = (status?: string) => {
+    switch (status?.toLowerCase()) {
+      case "requested":
+      case "request":
+        return "text-yellow-500";
+
+      case "cancelled":
+      case "canceled":
+      case "cancel":
+        return "text-red-500";
+
+      case "arrived":
+        return "text-purple-500";
+
+      case "completed":
+        return "text-green-600";
+
+      case "ongoing":
+      case "in-progress":
+        return "text-blue-600";
+
+      default:
+        return "text-gray-500";
+    }
+  };
 
   return (
     <div className='min-h-screen bg-white m-6 rounded-xl'>
@@ -133,21 +159,27 @@ export default function ProfilePage() {
                   <FileText className='w-4 h-4 text-gray-500' />
                   <span className='flex items-center gap-4'>
                     Driving Liecense:{" "}
-                    <Image
-                      src={getImageSrc(currentUser?.driving_license_photos[0])!}
-                      alt='Driving License'
-                      className='cursor-pointer rounded border hover:scale-105 transition'
-                      width={48}
-                      height={48}
-                      onClick={() => {
-                        const images = currentUser?.driving_license_photos
-                          ?.map(getImageSrc)
-                          .filter(Boolean) as string[];
+                    {currentUser?.driving_license_photos?.length ? (
+                      <Image
+                        src={
+                          getImageSrc(currentUser?.driving_license_photos[0])!
+                        }
+                        alt='Driving License'
+                        className='cursor-pointer rounded border hover:scale-105 transition'
+                        width={48}
+                        height={48}
+                        onClick={() => {
+                          const images = currentUser?.driving_license_photos
+                            ?.map(getImageSrc)
+                            .filter(Boolean) as string[];
 
-                        setPreviewImages(images || []);
-                        setCurrentIndex(0);
-                      }}
-                    />
+                          setPreviewImages(images || []);
+                          setCurrentIndex(0);
+                        }}
+                      />
+                    ) : (
+                      <span>Not Uploaded</span>
+                    )}
                   </span>
                 </div>
               )}
@@ -157,25 +189,30 @@ export default function ProfilePage() {
                   <FileText className='w-4 h-4 text-gray-500' />
                   <span className='flex items-center gap-4'>
                     Vehicle Registration:{" "}
-                    <Image
-                      src={
-                        getImageSrc(
-                          currentUser?.vehicle_registration_photos[0],
-                        )!
-                      }
-                      alt='Vehicle Registration'
-                      width={48}
-                      height={48}
-                      className='cursor-pointer rounded border hover:scale-105 transition'
-                      onClick={() => {
-                        const images = currentUser?.vehicle_registration_photos
-                          ?.map(getImageSrc)
-                          .filter(Boolean) as string[];
+                    {currentUser?.vehicle_registration_photos?.length ? (
+                      <Image
+                        src={
+                          getImageSrc(
+                            currentUser?.vehicle_registration_photos[0],
+                          )!
+                        }
+                        alt='Vehicle Registration'
+                        width={48}
+                        height={48}
+                        className='cursor-pointer rounded border hover:scale-105 transition'
+                        onClick={() => {
+                          const images =
+                            currentUser?.vehicle_registration_photos
+                              ?.map(getImageSrc)
+                              .filter(Boolean) as string[];
 
-                        setPreviewImages(images);
-                        setCurrentIndex(0);
-                      }}
-                    />
+                          setPreviewImages(images);
+                          setCurrentIndex(0);
+                        }}
+                      />
+                    ) : (
+                      <span>Not Uploaded</span>
+                    )}
                   </span>
                 </div>
               )}
@@ -184,21 +221,25 @@ export default function ProfilePage() {
                 <FileText className='w-4 h-4 text-gray-500' />
                 <span className='flex items-center gap-4'>
                   NID:{" "}
-                  <Image
-                    src={getImageSrc(currentUser?.nid_photos[0])!}
-                    alt='NID'
-                    width={48}
-                    height={48}
-                    className='cursor-pointer rounded border hover:scale-105 transition'
-                    onClick={() => {
-                      const images = currentUser?.nid_photos
-                        ?.map(getImageSrc)
-                        .filter(Boolean) as string[];
+                  {currentUser?.nid_photos?.length ? (
+                    <Image
+                      src={getImageSrc(currentUser?.nid_photos[0])!}
+                      alt='NID'
+                      width={48}
+                      height={48}
+                      className='cursor-pointer rounded border hover:scale-105 transition'
+                      onClick={() => {
+                        const images = currentUser?.nid_photos
+                          ?.map(getImageSrc)
+                          .filter(Boolean) as string[];
 
-                      setPreviewImages(images);
-                      setCurrentIndex(0);
-                    }}
-                  />
+                        setPreviewImages(images);
+                        setCurrentIndex(0);
+                      }}
+                    />
+                  ) : (
+                    <span>Not Uploaded</span>
+                  )}
                 </span>
               </div>
             </div>
@@ -223,21 +264,32 @@ export default function ProfilePage() {
               </p>
               <p className='text-gray-600 text-sm sm:text-base'>Ratings</p>
             </div>
-            {/* <div className='bg-gray-100 rounded-lg p-6 hover:bg-gray-200 transition-colors'>
-              <p className='text-3xl sm:text-4xl font-bold text-gray-900 mb-2'>
-                200
-              </p>
-              <p className='text-gray-600 text-sm sm:text-base'>Day Streak</p>
-            </div> */}
           </div>
         </div>
 
         {/* Trip History Section */}
         <div>
-          <div className='flex items-center justify-between mb-6'>
+          <div className='flex items-center gap-6 mb-6'>
             <h3 className='text-xl sm:text-2xl font-semibold text-gray-900'>
               Trip History
             </h3>
+
+            <div className='inline-flex rounded-lg border border-gray-200 bg-gray-100 p-1'>
+              <button
+                onClick={() => setTab("Trips")}
+                className={`px-4 py-2 text-sm font-medium rounded-md 
+               ${tab === "Trips" ? "bg-blue-600 text-white" : ""} text-blue-600 shadow transition`}
+              >
+                Trips
+              </button>
+              <button
+                onClick={() => setTab("Parcels")}
+                className={`px-4 py-2 text-sm font-medium rounded-md  ${tab === "Parcels" ? "bg-blue-600 text-white" : ""} 
+               text-gray-600 transition`}
+              >
+                Parcels
+              </button>
+            </div>
           </div>
 
           {/* Trip List */}
@@ -285,8 +337,26 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
+                    {/* status */}
+                    <div className='sm:col-span-2'>
+                      <p className='text-sm text-gray-500 mb-1'>Status</p>
+                      <p
+                        className={`font-bold text-lg ${getStatusColor(trip?.status)}`}
+                      >
+                        {trip?.status}
+                      </p>
+                    </div>
+
+                    {/* role */}
+                    <div className='sm:col-span-1'>
+                      <p className='text-sm text-gray-500 mb-1'>Role</p>
+                      <p className='font-bold text-purple-600 text-base!'>
+                        {currentUser?.role}
+                      </p>
+                    </div>
+
                     {/* Price */}
-                    <div className='sm:col-span-2 text-right'>
+                    <div className='sm:col-span-1'>
                       <p className='text-sm text-gray-500 mb-1'>Amount</p>
                       <p className='font-bold text-blue-600 text-lg'>
                         ${trip?.total_cost}
