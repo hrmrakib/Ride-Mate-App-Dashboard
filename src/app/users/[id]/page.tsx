@@ -149,10 +149,10 @@ export default function ProfilePage() {
 
           {/* Contact Info */}
           <div className='flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center text-sm sm:text-base text-gray-700 mb-8 flex-wrap'>
-            <div className='flex items-center gap-2'>
+            {/* <div className='flex items-center gap-2'>
               <Phone className='w-4 h-4 text-gray-500' />
               <span>Phone Number: {currentUser?.phone || "N/A"}</span>
-            </div>
+            </div> */}
             <div className='flex items-center gap-2 flex-wrap'>
               {currentUser?.role === "DRIVER" && (
                 <div className='flex items-center gap-2'>
@@ -235,6 +235,33 @@ export default function ProfilePage() {
 
                         setPreviewImages(images);
                         setCurrentIndex(0);
+                      }}
+                    />
+                  ) : (
+                    <span>Not Uploaded</span>
+                  )}
+                </span>
+              </div>
+
+              <div className='flex items-center gap-2'>
+                <FileText className='w-4 h-4 text-gray-500' />
+                <span className='flex items-center gap-4'>
+                  Capture Avatar:{" "}
+                  {currentUser?.capture_avatar ? (
+                    <Image
+                      src={getImageSrc(currentUser?.capture_avatar)!}
+                      alt='Capture Avatar'
+                      width={48}
+                      height={48}
+                      className='cursor-pointer rounded border hover:scale-105 transition'
+                      onClick={() => {
+                        const image = getImageSrc(
+                          currentUser?.capture_avatar as string,
+                        );
+                        if (image) {
+                          setPreviewImages([image]);
+                          setCurrentIndex(0);
+                        }
                       }}
                     />
                   ) : (
